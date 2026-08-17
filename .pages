@@ -1,0 +1,4 @@
+# GitHub Pages 配置
+[pages]
+build = false
+source = "/"
