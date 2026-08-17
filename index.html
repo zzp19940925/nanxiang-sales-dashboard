@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>南翔门店销售驾驶舱 · 店长视角</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Microsoft YaHei','Segoe UI',sans-serif; background:#f0f2f5; color:#333; padding:16px; }
+  /* 顶部控制栏 */
+  .topbar { background:#fff; border-radius:10px; padding:16px 20px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); display:flex; align-items:center; flex-wrap:wrap; gap:16px; }
+  .topbar h1 { font-size:20px; color:#1a1a1a; white-space:nowrap; }
+  .topbar .sub { font-size:12px; color:#8c8c8c; margin-top:2px; }
+  .ctrl-group { display:flex; align-items:center; gap:8px; }
+  .ctrl-group label { font-size:13px; color:#595959; font-weight:600; white-space:nowrap; }
+  select, input[type=date] { padding:6px 10px; border:1px solid #d9d9d9; border-radius:6px; font-size:13px; background:#fff; cursor:pointer; }
+  .mode-btn { padding:6px 16px; border:1px solid #d9d9d9; background:#fff; border-radius:6px; cursor:pointer; font-size:13px; color:#595959; }
+  .mode-btn.active { background:#1890ff; color:#fff; border-color:#1890ff; }
+  /* KPI卡片 */
+  .kpi-row { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; margin-bottom:16px; }
+  .kpi-card { background:#fff; border-radius:10px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); text-align:center; }
+  .kpi-card .label { font-size:12px; color:#8c8c8c; margin-bottom:6px; }
+  .kpi-card .value { font-size:28px; font-weight:700; line-height:1; }
+  .kpi-card .unit { font-size:12px; color:#bfbfbf; margin-top:4px; }
+  .kpi-card.blue .value { color:#1890ff; }
+  .kpi-card.green .value { color:#52c41a; }
+  .kpi-card.orange .value { color:#fa8c16; }
+  .kpi-card.purple .value { color:#722ed1; }
+  .kpi-card.red .value { color:#f5222d; }
+  .kpi-card.cyan .value { color:#13c2c2; }
+  .kpi-card .month-progress { margin-top:8px; padding-top:8px; border-top:1px solid #f0f0f0; }
+  .kpi-card .progress-bar { height:6px; border-radius:3px; background:#f0f0f0; overflow:hidden; margin-top:4px; }
+  .kpi-card .progress-fill { height:100%; border-radius:3px; transition:width 0.5s; }
+  .kpi-card .progress-text { font-size:11px; color:#8c8c8c; margin-top:3px; }
+  .workday-tip { background:linear-gradient(135deg,#fff7e6,#fffbe6); border:1px solid #ffd591; border-radius:6px; padding:6px 14px; font-size:13px; color:#d46b08; font-weight:600; white-space:nowrap; }
+  .rank-trend { font-size:13px; margin-left:6px; font-weight:700; }
+  .rank-trend.up { color:#52c41a; }
+  .rank-trend.down { color:#f5222d; }
+  .rank-trend.flat { color:#bfbfbf; }
+  .rank-trend.new { color:#fa8c16; }
+  /* 区块通用 */
+  .panel { background:#fff; border-radius:10px; padding:18px 20px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+  .panel-title { font-size:16px; font-weight:700; color:#1a1a1a; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .panel-title .tag { font-size:12px; font-weight:400; color:#8c8c8c; }
+  /* 积分排名榜 */
+  .rank-list { display:flex; flex-direction:column; gap:8px; }
+  .rank-item { display:grid; grid-template-columns:40px 80px 1fr 80px 60px; align-items:center; gap:12px; padding:10px 14px; border-radius:8px; background:#fafafa; transition:all 0.2s; }
+  .rank-item:hover { background:#f0f0f0; }
+  .rank-item.top1 { background:linear-gradient(90deg,#f6ffed,#fff); border-left:4px solid #52c41a; }
+  .rank-item.top2 { background:linear-gradient(90deg,#f0f5ff,#fff); border-left:4px solid #2f54eb; }
+  .rank-item.top3 { background:linear-gradient(90deg,#fff7e6,#fff); border-left:4px solid #fa8c16; }
+  .rank-item.bottom { background:linear-gradient(90deg,#fff1f0,#fff); border-left:4px solid #f5222d; }
+  .rank-num { font-size:20px; font-weight:700; text-align:center; color:#8c8c8c; }
+  .rank-item.top1 .rank-num { color:#52c41a; }
+  .rank-item.top2 .rank-num { color:#2f54eb; }
+  .rank-item.top3 .rank-num { color:#fa8c16; }
+  .rank-item.bottom .rank-num { color:#f5222d; }
+  .rank-name { font-size:15px; font-weight:600; }
+  .rank-name .grp { font-size:11px; color:#8c8c8c; margin-left:4px; }
+  .rank-bar { height:24px; border-radius:12px; background:#f0f0f0; overflow:hidden; position:relative; }
+  .rank-bar-fill { height:100%; border-radius:12px; transition:width 0.5s; display:flex; align-items:center; padding-left:10px; }
+  .rank-bar-fill .detail { font-size:11px; color:#fff; white-space:nowrap; }
+  .rank-score { font-size:18px; font-weight:700; text-align:right; }
+  .rank-orders { font-size:12px; color:#8c8c8c; text-align:right; }
+  /* 问界组开单间隔 */
+  .alert-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .alert-card { border-radius:10px; padding:18px; text-align:center; position:relative; overflow:hidden; }
+  .alert-card .name { font-size:15px; font-weight:600; margin-bottom:4px; }
+  .alert-card .status { font-size:12px; margin-bottom:10px; }
+  .alert-card .days { font-size:42px; font-weight:800; line-height:1; }
+  .alert-card .days-label { font-size:12px; margin-top:4px; }
+  .alert-card .last-order { font-size:11px; margin-top:8px; opacity:0.85; }
+  .alert-card.overdue { background:linear-gradient(135deg,#fff1f0,#ffccc7); border:1px solid #ffa39e; }
+  .alert-card.overdue .days, .alert-card.overdue .status { color:#f5222d; }
+  .alert-card.warning { background:linear-gradient(135deg,#fffbe6,#fff1b8); border:1px solid #ffe58f; }
+  .alert-card.warning .days, .alert-card.warning .status { color:#fa8c16; }
+  .alert-card.ok { background:linear-gradient(135deg,#f6ffed,#b7eb8f); border:1px solid #95de64; }
+  .alert-card.ok .days, .alert-card.ok .status { color:#389e0d; }
+  .alert-card.never { background:linear-gradient(135deg,#f5f5f5,#d9d9d9); border:1px solid #bfbfbf; }
+  .alert-card.never .days, .alert-card.never .status { color:#8c8c8c; }
+  /* 提成统计表 */
+  .comm-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .comm-table th { background:#fafafa; padding:10px 12px; text-align:center; font-weight:600; color:#595959; border-bottom:2px solid #e8e8e8; }
+  .comm-table td { padding:10px 12px; text-align:center; border-bottom:1px solid #f0f0f0; }
+  .comm-table tr.mgr-row td { background:#e6f7ff; font-weight:700; }
+  .comm-table .rate-bar { display:inline-block; width:60px; height:8px; border-radius:4px; background:#f0f0f0; vertical-align:middle; margin:0 6px; }
+  .comm-table .rate-fill { height:100%; border-radius:4px; }
+  /* 图表区 */
+  .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  .chart-box { background:#fff; border-radius:10px; padding:18px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+  .chart-box.full { grid-column:1/-1; }
+  .chart-title { font-size:14px; font-weight:600; color:#1a1a1a; margin-bottom:10px; }
+  .chart { width:100%; height:300px; }
+  /* 详细数据表 */
+  .data-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .data-table th { background:#fafafa; padding:10px 8px; text-align:center; font-weight:600; color:#595959; border-bottom:2px solid #e8e8e8; white-space:nowrap; }
+  .data-table td { padding:10px 8px; text-align:center; border-bottom:1px solid #f0f0f0; }
+  .data-table tr:hover { background:#fafafa; }
+  .data-table .wj { color:#1890ff; font-weight:600; }
+  .data-table .hm { color:#722ed1; }
+  /* 洞察 */
+  .insight { background:linear-gradient(135deg,#e6f7ff,#bae7ff); border-radius:10px; padding:16px 20px; margin-bottom:16px; }
+  .insight h3 { font-size:14px; color:#0050b3; margin-bottom:8px; }
+  .insight ul { list-style:none; }
+  .insight li { font-size:13px; color:#003a8c; padding:3px 0; padding-left:16px; position:relative; }
+  .insight li::before { content:""; width:6px; height:6px; border-radius:50%; background:#1890ff; position:absolute; left:0; top:10px; }
+  .footer { text-align:center; color:#bfbfbf; font-size:12px; padding:20px 0; }
+  @media (max-width:1200px){ .kpi-row{grid-template-columns:repeat(3,1fr);} .chart-grid{grid-template-columns:1fr;} .alert-grid{grid-template-columns:repeat(2,1fr);} }
+</style>
+</head>
+<body>
+
+<!-- 顶部控制栏 -->
+<div class="topbar">
+  <div>
+    <h1>🏪 南翔门店销售驾驶舱</h1>
+    <div class="sub">店长视角 · 全门店10人工作量对比 + 问界组订单提成</div>
+  </div>
+  <div class="ctrl-group">
+    <label>📅 月份</label>
+    <select id="monthPicker" onchange="onMonthChange()">
+      <option value="2026-07">7月</option>
+      <option value="2026-08">8月</option>
+      <option value="2026-09">9月</option>
+      <option value="2026-10">10月</option>
+      <option value="2026-11">11月</option>
+      <option value="2026-12">12月</option>
+    </select>
+  </div>
+  <div class="ctrl-group">
+    <label>📅 日期</label>
+    <input type="date" id="datePicker">
+  </div>
+  <div class="ctrl-group">
+    <label>模式</label>
+    <button class="mode-btn active" id="modeDay" onclick="switchMode('day')">当日</button>
+    <button class="mode-btn" id="modeMonth" onclick="switchMode('month')">当月累计</button>
+    <button class="mode-btn" id="modeRange" onclick="switchMode('range')">自定义</button>
+  </div>
+  <div class="ctrl-group" id="rangePicker" style="display:none;">
+    <label>📅 从</label>
+    <input type="date" id="dateStart">
+    <label>至</label>
+    <input type="date" id="dateEnd">
+  </div>
+  <div class="ctrl-group">
+    <label>👤 人员</label>
+    <select id="personFilter" onchange="renderAll()">
+      <option value="">全部10人</option>
+    </select>
+  </div>
+  <div class="ctrl-group" id="workdayTip"></div>
+</div>
+
+<!-- KPI总览 -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- 店长速览洞察 -->
+<div class="insight" id="insightBox">
+  <h3>💡 店长速览</h3>
+  <ul id="insightList"></ul>
+</div>
+
+<!-- 当月累计积分排名（固定显示当月，不受模式切换影响） -->
+<div class="panel">
+  <div class="panel-title">
+    🏆 <span id="rankTitle">综合积分排行榜</span>
+    <span class="tag" id="rankTag">（按积分从高到低，绿色=最高 红色=最低）</span>
+  </div>
+  <div class="rank-list" id="rankList"></div>
+</div>
+
+<!-- 问界组开单间隔预警 -->
+<div class="panel">
+  <div class="panel-title">
+    🔔 问界组开单间隔监控
+    <span class="tag">（只统计问界组5人 · 基于订单明细计算）</span>
+  </div>
+  <div class="alert-grid" id="alertGrid"></div>
+</div>
+
+<!-- 问界组提成统计 -->
+<div class="panel">
+  <div class="panel-title">
+    💰 问界组提成统计
+    <span class="tag" id="commTag">（7月）</span>
+  </div>
+  <table class="comm-table" id="commTable"></table>
+</div>
+
+<!-- 图表区 -->
+<div class="chart-grid">
+  <div class="chart-box">
+    <div class="chart-title">📊 人员工作量堆叠对比</div>
+    <div class="chart" id="chartPerf"></div>
+  </div>
+  <div class="chart-box">
+    <div class="chart-title">📈 问界组 vs 鸿蒙组 对比（合计）</div>
+    <div class="chart" id="chartGroup"></div>
+    <div id="groupCompareTable" style="margin-top:12px;font-size:12px;"></div>
+  </div>
+  <div class="chart-box">
+    <div class="chart-title">🚗 车型销量分布（当月订单 · 按销量排序 · 品牌分色 · 悬停看提成）</div>
+    <div class="chart" id="chartFunnel"></div>
+  </div>
+  <div class="chart-box">
+    <div class="chart-title">📈 当月日趋势（团队每日表现走势）</div>
+    <div class="chart" id="chartTrend"></div>
+  </div>
+  <div class="chart-box full">
+    <div class="chart-title">🎯 个人转化率对比（各环节转化率 · 谁在白打电话一眼看出）</div>
+    <div class="chart" id="chartConvert" style="height:340px;"></div>
+  </div>
+</div>
+
+<!-- 综合积分排名榜（随当日/当月模式切换） -->
+<div class="panel">
+  <div class="panel-title">📋 综合积分排名榜 <span class="tag" id="tableTag">（当日）</span></div>
+  <table class="data-table" id="dataTable"></table>
+</div>
+
+<div class="footer">
+  南翔门店销售驾驶舱 · 综合积分 = 电话×0.1 + 线索×1 + 邀约×1 + 试驾×2 + 小订×1.5 + 订单×5<br>
+  <span style="color:#bfbfbf">数据来源：腾讯文档在线表格 → sync.py → data.js + orders_data.js</span>
+</div>
+
+<script src="data.js"></script>
+<script src="orders_data.js"></script>
+<script>
+// ===== 全局状态 =====
+let currentMode = 'day'; // day | month | range
+let selectedDate = '';
+let selectedMonth = '2026-07';
+let dateStart = '';
+let dateEnd = '';
+// WENJIE_MEMBERS / SALES_INFO / SALES_DATA 来自 data.js
+let ALL_NAMES = [];
+
+// ===== 初始化 =====
+function init() {
+  // 提取所有人员名单（保序去重）
+  const seen = {};
+  ALL_NAMES = [];
+  for (const d of SALES_DATA) {
+    if (!seen[d.name]) { seen[d.name] = 1; ALL_NAMES.push(d.name); }
+  }
+  // 填充人员筛选
+  const sel = document.getElementById('personFilter');
+  for (const n of ALL_NAMES) {
+    const opt = document.createElement('option');
+    opt.value = n; opt.textContent = n;
+    sel.appendChild(opt);
+  }
+  // 月份选择器：默认选最新有数据的月份
+  const dates = [...new Set(SALES_DATA.map(d => d.date))].sort();
+  const latestMonth = dates[dates.length - 1].substring(0, 7);
+  const mp = document.getElementById('monthPicker');
+  mp.value = latestMonth;
+  selectedMonth = latestMonth;
+
+  // 日期选择器：默认选最新有数据的日期
+  const dp = document.getElementById('datePicker');
+  dp.value = dates[dates.length - 1];
+  dp.max = dates[dates.length - 1];
+  dp.min = dates[0];
+  selectedDate = dp.value;
+  dp.addEventListener('change', () => { selectedDate = dp.value; renderAll(); });
+
+  // 日期范围选择器初始化
+  const ds = document.getElementById('dateStart');
+  const de = document.getElementById('dateEnd');
+  ds.min = dates[0]; ds.max = dates[dates.length - 1];
+  de.min = dates[0]; de.max = dates[dates.length - 1];
+  ds.value = dates[0];
+  de.value = dates[dates.length - 1];
+  dateStart = ds.value;
+  dateEnd = de.value;
+  ds.addEventListener('change', () => { dateStart = ds.value; renderAll(); });
+  de.addEventListener('change', () => { dateEnd = de.value; renderAll(); });
+
+  renderAll();
+}
+
+// ===== 模式切换 =====
+function switchMode(m) {
+  currentMode = m;
+  document.getElementById('modeDay').classList.toggle('active', m === 'day');
+  document.getElementById('modeMonth').classList.toggle('active', m === 'month');
+  document.getElementById('modeRange').classList.toggle('active', m === 'range');
+  document.getElementById('rangePicker').style.display = m === 'range' ? '' : 'none';
+  renderAll();
+}
+
+// ===== 月份切换 =====
+function onMonthChange() {
+  selectedMonth = document.getElementById('monthPicker').value;
+  // 日期选择器同步到该月第一天（如果有数据）
+  const monthDates = [...new Set(SALES_DATA.map(d => d.date))].filter(d => d.startsWith(selectedMonth)).sort();
+  const dp = document.getElementById('datePicker');
+  if (monthDates.length > 0) {
+    dp.value = monthDates[monthDates.length - 1];
+    selectedDate = dp.value;
+  } else {
+    // 该月无数据，默认选该月1日
+    dp.value = selectedMonth + '-01';
+    selectedDate = dp.value;
+  }
+  renderAll();
+}
+
+// ===== 获取当前数据 =====
+function getCurrentData() {
+  const person = document.getElementById('personFilter').value;
+  let filtered;
+  if (currentMode === 'day') {
+    filtered = SALES_DATA.filter(d => d.date === selectedDate);
+  } else if (currentMode === 'range') {
+    filtered = SALES_DATA.filter(d => d.date >= dateStart && d.date <= dateEnd);
+  } else {
+    // 当月累计：取selectedMonth
+    filtered = SALES_DATA.filter(d => d.date.startsWith(selectedMonth));
+  }
+  if (person) filtered = filtered.filter(d => d.name === person);
+  return filtered;
+}
+
+// ===== 聚合（当月累计模式下按人汇总）=====
+function aggregateData(rawData) {
+  if (currentMode === 'day') return rawData;
+  // 按人汇总
+  const map = {};
+  for (const d of rawData) {
+    if (!map[d.name]) {
+      map[d.name] = { date: selectedDate, name: d.name, group: d.group, manager: d.manager,
+        phone:0, lead:0, invite:0, test:0, small:0, order:0, score:0 };
+    }
+    map[d.name].phone += d.phone || 0;
+    map[d.name].lead += d.lead || 0;
+    map[d.name].invite += d.invite || 0;
+    map[d.name].test += d.test || 0;
+    map[d.name].small += d.small || 0;
+    map[d.name].order += d.order || 0;
+    map[d.name].score += d.score || 0;
+  }
+  return Object.values(map);
+}
+
+// ===== 渲染KPI =====
+function renderKPI(data) {
+  const sum = (arr, key) => arr.reduce((s, d) => s + (d[key] || 0), 0);
+  // 当月累计（不受当日/当月模式影响，始终显示全月汇总）
+  const monthRaw = SALES_DATA.filter(d => d.date.startsWith(selectedMonth));
+  const mSum = (key) => monthRaw.reduce((s, d) => s + (d[key] || 0), 0);
+  // 订单月目标（从提成数据取，主管目标=问界组全员目标之和）
+  const monthNum = parseInt(selectedMonth.substring(5, 7));
+  const monthKey = monthNum + '月';
+  let orderTarget = 0;
+  if (typeof commissionData !== 'undefined' && commissionData[monthKey] && commissionData[monthKey].manager) {
+    orderTarget = commissionData[monthKey].manager.target || 0;
+  }
+  const monthOrders = mSum('order');
+  const orderRate = orderTarget > 0 ? Math.round(monthOrders / orderTarget * 100) : 0;
+
+  const kpis = [
+    { label:'电话量', value:sum(data,'phone'), unit:'通', cls:'blue', monthVal:mSum('phone') },
+    { label:'线索量', value:sum(data,'lead'), unit:'条', cls:'cyan', monthVal:mSum('lead') },
+    { label:'邀约量', value:sum(data,'invite'), unit:'组', cls:'purple', monthVal:mSum('invite') },
+    { label:'试驾量', value:sum(data,'test'), unit:'组', cls:'orange', monthVal:mSum('test') },
+    { label:'订单量', value:sum(data,'order'), unit:'单', cls:'green', monthVal:monthOrders, target:orderTarget, rate:orderRate },
+    { label:'综合积分', value:sum(data,'score').toFixed(1), unit:'分', cls:'red', monthVal:mSum('score').toFixed(1) },
+  ];
+  document.getElementById('kpiRow').innerHTML = kpis.map(k => {
+    let progressHtml = '';
+    if (k.target) {
+      // 订单量：显示月目标进度条
+      const barColor = k.rate >= 100 ? '#52c41a' : k.rate >= 60 ? '#fa8c16' : '#f5222d';
+      progressHtml = `<div class="month-progress">
+        <div class="progress-text">月进度 <b style="color:${barColor}">${k.monthVal}/${k.target}单 · ${k.rate}%</b></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(k.rate,100)}%;background:${barColor}"></div></div>
+      </div>`;
+    } else {
+      // 其他：显示当月累计
+      progressHtml = `<div class="month-progress"><div class="progress-text">当月累计 ${k.monthVal} ${k.unit}</div></div>`;
+    }
+    return `<div class="kpi-card ${k.cls}"><div class="label">${k.label}</div><div class="value">${k.value}</div><div class="unit">${k.unit}</div>${progressHtml}</div>`;
+  }).join('');
+}
+
+// ===== 渲染当月累计积分排名（固定当月，不受模式切换影响）=====
+function renderRank() {
+  // 根据模式获取数据
+  let monthData;
+  if (currentMode === 'day') {
+    monthData = SALES_DATA.filter(d => d.date === selectedDate);
+  } else if (currentMode === 'range') {
+    monthData = SALES_DATA.filter(d => d.date >= dateStart && d.date <= dateEnd);
+  } else {
+    monthData = SALES_DATA.filter(d => d.date.startsWith(selectedMonth));
+  }
+  const person = document.getElementById('personFilter').value;
+  if (person) monthData = monthData.filter(d => d.name === person);
+
+  // 动态标题
+  const rankTitle = document.getElementById('rankTitle');
+  const rankTag = document.getElementById('rankTag');
+  if (currentMode === 'day') {
+    const parts = selectedDate.split('-');
+    rankTitle.textContent = `${parseInt(parts[1])}月${parseInt(parts[2])}日综合积分排行榜`;
+    rankTag.textContent = `（${parseInt(parts[1])}月${parseInt(parts[2])}日 · 按积分从高到低，绿色=最高 红色=最低）`;
+  } else if (currentMode === 'range') {
+    const ps = dateStart.split('-'), pe = dateEnd.split('-');
+    rankTitle.textContent = `${parseInt(ps[1])}月${parseInt(ps[2])}日-${parseInt(pe[1])}月${parseInt(pe[2])}日综合积分排行榜`;
+    rankTag.textContent = `（${parseInt(ps[1])}月${parseInt(ps[2])}日-${parseInt(pe[1])}月${parseInt(pe[2])}日 · 按积分从高到低，绿色=最高 红色=最低）`;
+  } else {
+    const monthNum = parseInt(selectedMonth.split('-')[1]);
+    rankTitle.textContent = `${monthNum}月综合积分排行榜`;
+    rankTag.textContent = `（${monthNum}月当月累计 · 按积分从高到低，绿色=最高 红色=最低 · 箭头=对比昨日排名变化）`;
+  }
+
+  // 独立按人汇总（不受currentMode影响）
+  const map = {};
+  for (const d of monthData) {
+    if (!map[d.name]) {
+      map[d.name] = { date: selectedDate, name: d.name, group: d.group, manager: d.manager,
+        phone:0, lead:0, invite:0, test:0, small:0, order:0, score:0 };
+    }
+    map[d.name].phone += d.phone || 0;
+    map[d.name].lead += d.lead || 0;
+    map[d.name].invite += d.invite || 0;
+    map[d.name].test += d.test || 0;
+    map[d.name].small += d.small || 0;
+    map[d.name].order += d.order || 0;
+    map[d.name].score += d.score || 0;
+  }
+  const data = Object.values(map);
+  // 补全所有人员（没数据的积分0）
+  const dataMap = {};
+  for (const d of data) dataMap[d.name] = d;
+  const fullList = ALL_NAMES.map(n => dataMap[n] || { name:n, group: guessGroup(n), phone:0,lead:0,invite:0,test:0,small:0,order:0,score:0 });
+  // 按积分降序
+  fullList.sort((a, b) => b.score - a.score);
+  const maxScore = Math.max(...fullList.map(d => d.score), 1);
+
+  // 趋势箭头（仅month模式计算昨日排名）
+  let prevRank = {};
+  if (currentMode === 'month') {
+    const prevDateObj = new Date(selectedDate + 'T00:00:00');
+    prevDateObj.setDate(prevDateObj.getDate() - 1);
+    const prevDateStr = prevDateObj.toISOString().substring(0, 10);
+    const prevMonthData = SALES_DATA.filter(d => d.date.startsWith(selectedMonth) && d.date <= prevDateStr);
+    const prevMap = {};
+    for (const d of prevMonthData) {
+      if (!prevMap[d.name]) prevMap[d.name] = { name:d.name, score:0 };
+      prevMap[d.name].score += d.score || 0;
+    }
+    const prevSorted = Object.values(prevMap).sort((a, b) => b.score - a.score);
+    prevSorted.forEach((d, i) => { prevRank[d.name] = i + 1; });
+  }
+
+  const html = fullList.map((d, i) => {
+    const rank = i + 1;
+    let cls = '';
+    if (rank === 1) cls = 'top1';
+    else if (rank === 2) cls = 'top2';
+    else if (rank === 3) cls = 'top3';
+    if (rank === fullList.length && fullList.length > 1) cls = 'bottom';
+    const pct = maxScore > 0 ? (d.score / maxScore * 100) : 0;
+    const barColor = d.group === '问界组' ? '#1890ff' : '#722ed1';
+    const detail = `电话${d.phone} 线索${d.lead} 试驾${d.test} 订单${d.order}`;
+    // 趋势箭头（仅month模式显示）
+    let trend = '';
+    if (currentMode === 'month') {
+      const prevR = prevRank[d.name];
+      if (!prevR) {
+        trend = '<span class="rank-trend new">NEW</span>';
+      } else if (prevR > rank) {
+        trend = `<span class="rank-trend up">↑${prevR - rank}</span>`;
+      } else if (prevR < rank) {
+        trend = `<span class="rank-trend down">↓${rank - prevR}</span>`;
+      } else {
+        trend = '<span class="rank-trend flat">→</span>';
+      }
+    }
+    return `<div class="rank-item ${cls}">
+      <div class="rank-num">${rank}</div>
+      <div class="rank-name">${d.name}${trend}<span class="grp">${d.group}</span></div>
+      <div class="rank-bar"><div class="rank-bar-fill" style="width:${pct}%;background:${barColor}"><span class="detail">${detail}</span></div></div>
+      <div class="rank-score">${d.score.toFixed(1)}</div>
+      <div class="rank-orders">${d.order}单</div>
+    </div>`;
+  }).join('');
+  document.getElementById('rankList').innerHTML = html;
+}
+
+function guessGroup(name) {
+  for (const d of SALES_DATA) { if (d.name === name) return d.group; }
+  return '';
+}
+
+// ===== 渲染问界组开单间隔预警 =====
+function renderAlerts() {
+  const today = new Date(selectedDate + 'T00:00:00');
+  const cards = WENJIE_MEMBERS.map(name => {
+    // 获取该销售所有订单（按日期排序）
+    const myOrders = (typeof ordersData !== 'undefined' ? ordersData : [])
+      .filter(o => o.sales === name)
+      .map(o => o.date)
+      .sort();
+    if (myOrders.length === 0) {
+      return { name, days: -1, status:'never', statusText:'暂无订单', lastOrder:'', avgInterval:0, orderCount:0 };
+    }
+    const lastDate = myOrders[myOrders.length - 1];
+    const lastOrderDate = new Date(lastDate + 'T00:00:00');
+    const days = Math.floor((today - lastOrderDate) / 86400000);
+    // 计算历史平均间隔
+    let avgInterval = 0;
+    if (myOrders.length >= 2) {
+      const dateObjs = myOrders.map(d => new Date(d + 'T00:00:00'));
+      let totalGap = 0;
+      for (let i = 1; i < dateObjs.length; i++) {
+        totalGap += (dateObjs[i] - dateObjs[i-1]) / 86400000;
+      }
+      avgInterval = Math.round(totalGap / (dateObjs.length - 1));
+    } else {
+      avgInterval = 30; // 只有1单，默认参考30天
+    }
+    let status, statusText;
+    if (days > avgInterval) { status = 'overdue'; statusText = `🔴 超期（平均${avgInterval}天）`; }
+    else if (days >= avgInterval * 0.7) { status = 'warning'; statusText = `🟡 预警（平均${avgInterval}天）`; }
+    else { status = 'ok'; statusText = `🟢 正常（平均${avgInterval}天）`; }
+    return { name, days, status, statusText, lastOrder: lastDate, avgInterval, orderCount: myOrders.length };
+  });
+  // 按天数降序
+  cards.sort((a, b) => b.days - a.days);
+
+  document.getElementById('alertGrid').innerHTML = cards.map(c => {
+    const daysDisplay = c.days < 0 ? '—' : c.days;
+    const lastText = c.lastOrder ? `最近开单：${c.lastOrder}（共${c.orderCount}单）` : '暂无开单记录';
+    return `<div class="alert-card ${c.status}">
+      <div class="name">${c.name}</div>
+      <div class="status">${c.statusText}</div>
+      <div class="days">${daysDisplay}</div>
+      <div class="days-label">距上次开单（天）</div>
+      <div class="last-order">${lastText}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===== 渲染提成统计表 =====
+function renderCommission() {
+  // 根据选中日期所在月
+  const monthNum = parseInt(selectedDate.substring(5, 7));
+  const monthKey = monthNum + '月';
+  document.getElementById('commTag').textContent = `（${monthKey}）`;
+
+  const comm = (typeof commissionData !== 'undefined' && commissionData[monthKey]) ? commissionData[monthKey] : null;
+  if (!comm) {
+    document.getElementById('commTable').innerHTML = `<tr><td colspan="8" style="padding:20px;color:#8c8c8c">${monthKey}暂无订单数据</td></tr>`;
+    return;
+  }
+  const rateColor = (r) => r >= 1 ? '#52c41a' : r >= 0.6 ? '#fa8c16' : '#f5222d';
+  let html = `<tr>
+    <th>销售</th><th>目标</th><th>订单</th><th>完成率</th><th>系数</th><th>提成基数</th><th>最终提成</th><th>状态</th>
+  </tr>`;
+  for (const s of comm.sales) {
+    const ratePct = (s.rate * 100).toFixed(0);
+    const status = s.rate >= 1 ? '🟢达标' : s.rate >= 0.6 ? '🟡努力' : '🔴落后';
+    html += `<tr>
+      <td style="font-weight:600">${s.name}</td>
+      <td>${s.target}单</td>
+      <td>${s.order_count}单</td>
+      <td><span class="rate-bar"><span class="rate-fill" style="width:${Math.min(ratePct,100)}%;background:${rateColor(s.rate)}"></span></span>${ratePct}%</td>
+      <td>${s.coeff.toFixed(1)}</td>
+      <td>${s.sale_commission}元</td>
+      <td style="font-weight:700;color:#f5222d">${s.final_commission}元</td>
+      <td>${status}</td>
+    </tr>`;
+  }
+  // 主管汇总
+  const m = comm.manager;
+  const mgrPct = (m.rate * 100).toFixed(0);
+  html += `<tr class="mgr-row">
+    <td>${m.name}（主管）</td>
+    <td>${m.target}单</td>
+    <td>${m.order_count}单</td>
+    <td><span class="rate-bar"><span class="rate-fill" style="width:${Math.min(mgrPct,100)}%;background:${rateColor(m.rate)}"></span></span>${mgrPct}%</td>
+    <td>${m.coeff.toFixed(1)}</td>
+    <td>${m.commission_base}元</td>
+    <td style="color:#f5222d">${m.final_commission}元</td>
+    <td>主管提成</td>
+  </tr>`;
+  document.getElementById('commTable').innerHTML = html;
+}
+
+// ===== 渲染洞察 =====
+function renderInsight(data) {
+  const insights = [];
+  const modeText = currentMode === 'day' ? '当日' : '当月累计';
+  // 积分最高最低
+  if (data.length > 0) {
+    const sorted = [...data].sort((a,b) => b.score - a.score);
+    const top = sorted[0];
+    const bottom = sorted[sorted.length - 1];
+    insights.push(`${modeText}积分最高：<b>${top.name}</b>（${top.score.toFixed(1)}分），最低：<b>${bottom.name}</b>（${bottom.score.toFixed(1)}分）`);
+  }
+  // 问界组vs鸿蒙组
+  const wj = data.filter(d => d.group === '问界组');
+  const hm = data.filter(d => d.group === '鸿蒙组');
+  if (wj.length > 0 && hm.length > 0) {
+    const wjAvg = wj.reduce((s,d) => s + d.score, 0) / wj.length;
+    const hmAvg = hm.reduce((s,d) => s + d.score, 0) / hm.length;
+    const diff = (wjAvg - hmAvg).toFixed(1);
+    const better = diff > 0 ? '问界组' : '鸿蒙组';
+    insights.push(`两组对比：问界组均分${wjAvg.toFixed(1)}，鸿蒙组均分${hmAvg.toFixed(1)}，<b>${better}</b>领先${Math.abs(diff)}分`);
+  }
+  // 订单情况
+  const totalOrders = data.reduce((s,d) => s + d.order, 0);
+  insights.push(`${modeText}全门店共开单 <b>${totalOrders}</b> 单`);
+  // 开单间隔预警
+  const today = new Date(selectedDate + 'T00:00:00');
+  let overdueCount = 0;
+  for (const name of WENJIE_MEMBERS) {
+    const myOrders = (typeof ordersData !== 'undefined' ? ordersData : []).filter(o => o.sales === name).map(o => o.date).sort();
+    if (myOrders.length === 0) continue;
+    const days = Math.floor((today - new Date(myOrders[myOrders.length-1] + 'T00:00:00')) / 86400000);
+    let avg = 30;
+    if (myOrders.length >= 2) {
+      let total = 0;
+      const obs = myOrders.map(d => new Date(d + 'T00:00:00'));
+      for (let i = 1; i < obs.length; i++) total += (obs[i] - obs[i-1]) / 86400000;
+      avg = Math.round(total / (obs.length - 1));
+    }
+    if (days > avg) overdueCount++;
+  }
+  if (overdueCount > 0) insights.push(`问界组有 <b style="color:#f5222d">${overdueCount}</b> 人开单间隔超期，需关注`);
+
+  document.getElementById('insightList').innerHTML = insights.map(i => `<li>${i}</li>`).join('');
+}
+
+// ===== 渲染图表 =====
+let chartPerf, chartGroup, chartFunnel, chartTrend, chartConvert;
+function renderCharts(data) {
+  const agg = aggregateData(data);
+  // 1. 人员工作量堆叠
+  if (!chartPerf) chartPerf = echarts.init(document.getElementById('chartPerf'));
+  const names = agg.map(d => d.name);
+  chartPerf.setOption({
+    tooltip: { trigger:'axis', axisPointer:{type:'shadow'} },
+    legend: { top:0, textStyle:{fontSize:11} },
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:names, axisLabel:{fontSize:11, rotate:30} },
+    yAxis: { type:'value' },
+    series: [
+      { name:'电话', type:'bar', stack:'total', data:agg.map(d=>d.phone), itemStyle:{color:'#1890ff'} },
+      { name:'线索', type:'bar', stack:'total', data:agg.map(d=>d.lead), itemStyle:{color:'#36cfc9'} },
+      { name:'邀约', type:'bar', stack:'total', data:agg.map(d=>d.invite), itemStyle:{color:'#9254de'} },
+      { name:'试驾', type:'bar', stack:'total', data:agg.map(d=>d.test), itemStyle:{color:'#fa8c16'} },
+      { name:'小订', type:'bar', stack:'total', data:agg.map(d=>d.small), itemStyle:{color:'#faad14'} },
+      { name:'订单', type:'bar', stack:'total', data:agg.map(d=>d.order), itemStyle:{color:'#52c41a'} },
+    ]
+  });
+
+  // 2. 问界组vs鸿蒙组（合计对比）
+  if (!chartGroup) chartGroup = echarts.init(document.getElementById('chartGroup'));
+  const wjData = agg.filter(d => d.group === '问界组');
+  const hmData = agg.filter(d => d.group === '鸿蒙组');
+  const sum = (arr, key) => arr.reduce((s, d) => s + (d[key] || 0), 0);
+  // 问界组订单以订单明细sheet数据为准
+  const orderMonthStr = parseInt(selectedMonth.split('-')[1]) + '月';
+  const wjNames = WENJIE_MEMBERS;
+  const wjOrderDetail = ordersData.filter(o => o.month === orderMonthStr && wjNames.includes(o.sales)).length;
+  chartGroup.setOption({
+    tooltip: { trigger:'axis', formatter: function(params) {
+      let r = params[0].axisValue + '<br/>';
+      for (const p of params) r += p.marker + p.seriesName + '：' + p.value + '<br/>';
+      return r;
+    }},
+    legend: { top:0, textStyle:{fontSize:11} },
+    grid: { left:'3%', right:'4%', bottom:'3%', containLabel:true },
+    xAxis: { type:'category', data:['电话','线索','邀约','试驾','小订','订单','积分'], axisLabel:{fontSize:11} },
+    yAxis: { type:'value' },
+    series: [
+      { name:'问界组(合计)', type:'bar', data:[sum(wjData,'phone'),sum(wjData,'lead'),sum(wjData,'invite'),sum(wjData,'test'),sum(wjData,'small'),wjOrderDetail,sum(wjData,'score').toFixed(1)], itemStyle:{color:'#1890ff'}, barWidth:'35%' },
+      { name:'鸿蒙组(合计)', type:'bar', data:[sum(hmData,'phone'),sum(hmData,'lead'),sum(hmData,'invite'),sum(hmData,'test'),sum(hmData,'small'),sum(hmData,'order'),sum(hmData,'score').toFixed(1)], itemStyle:{color:'#722ed1'}, barWidth:'35%' },
+    ]
+  });
+
+  // 3. 车型销量分布（替换原转化漏斗）
+  if (!chartFunnel) chartFunnel = echarts.init(document.getElementById('chartFunnel'));
+  // 取当前选中日期所在月份的订单，parseInt去前导0以匹配ordersData的"7月"格式
+  const selMonth = selectedDate ? parseInt(selectedDate.slice(5,7)) + '月' : '';
+  const monthOrders = (typeof ordersData !== 'undefined') ? ordersData.filter(o => o.month === selMonth) : [];
+  // 移除全量订单fallback，避免日期选错时显示错数据
+  // 按车型聚合
+  const carMap = {};
+  for (const o of monthOrders) {
+    const c = o.car || '未知';
+    if (!carMap[c]) carMap[c] = { count:0, saleComm:0, mgrComm:0, brand:o.brand||'' };
+    carMap[c].count += 1;
+    carMap[c].saleComm += Number(o.sale_commission)||0;
+    carMap[c].mgrComm += Number(o.mgr_commission)||0;
+  }
+  const carList = Object.entries(carMap).map(([car,d]) => ({ car, ...d })).sort((a,b)=>b.count-a.count);
+  const brandColor = { '问界':'#1890ff', '智界':'#52c41a', '享界':'#fa8c16' };
+  const carColors = carList.map(d => brandColor[d.brand] || '#8c8c8c');
+  const totalCars = carList.reduce((s,d)=>s+d.count,0) || 1;
+  // 当月无订单时显示空状态（不用return，避免影响后面chartGroup渲染）
+  if (carList.length === 0) {
+    chartFunnel.clear();
+    chartFunnel.setOption({
+      title: { text: `${selMonth}暂无订单`, left:'center', top:'center', textStyle:{color:'#999',fontSize:14,fontWeight:'normal'} },
+      xAxis: { show:false, type:'value' },
+      yAxis: { show:false, type:'category', data:[] },
+      series: []
+    }, true);
+  } else {
+  chartFunnel.setOption({
+    tooltip: {
+      trigger:'item',
+      formatter: (p) => {
+        const d = carList[p.dataIndex];
+        const pct = (d.count/totalCars*100).toFixed(1);
+        return `<b>${d.car}</b>（${d.brand}）<br/>销量：${d.count}单（${pct}%）<br/>销售提成合计：¥${d.saleComm.toLocaleString()}<br/>主管提成合计：¥${d.mgrComm.toLocaleString()}`;
+      }
+    },
+    grid: { left:'8%', right:'15%', top:10, bottom:10, containLabel:true },
+    xAxis: { type:'value', axisLabel:{ fontSize:11 } },
+    yAxis: {
+      type:'category',
+      data: carList.map(d=>d.car).reverse(),
+      axisLabel:{ fontSize:11 }
+    },
+    series: [{
+      type:'bar',
+      data: carList.map(d=>d.count).reverse().map((v,i)=>({ value:v, itemStyle:{ color: carColors[carList.length-1-i] } })),
+      barWidth: '60%',
+      label: { show:true, position:'right', formatter:(p)=>`${p.value}单`, fontSize:11 },
+      itemStyle: { borderRadius:[0,4,4,0] }
+    }]
+  }, true);
+  } // 关闭 else（车型销量分布空状态判断）
+
+  // 5. 组别对比明细表格
+  const wjSum = { phone: sum(wjData,'phone'), lead: sum(wjData,'lead'), invite: sum(wjData,'invite'), test: sum(wjData,'test'), small: sum(wjData,'small'), order: wjOrderDetail, score: sum(wjData,'score').toFixed(1) };
+  const hmSum = { phone: sum(hmData,'phone'), lead: sum(hmData,'lead'), invite: sum(hmData,'invite'), test: sum(hmData,'test'), small: sum(hmData,'small'), order: sum(hmData,'order'), score: sum(hmData,'score').toFixed(1) };
+  const wjMembers = agg.filter(d => d.group === '问界组').length;
+  const hmMembers = agg.filter(d => d.group === '鸿蒙组').length;
+  const diff = (a, b) => {
+    const d = parseFloat(a) - parseFloat(b);
+    const sign = d > 0 ? '+' : '';
+    return `<span style="color:${d > 0 ? '#1890ff' : d < 0 ? '#722ed1' : '#999'}">${sign}${d.toFixed(1)}</span>`;
+  };
+  document.getElementById('groupCompareTable').innerHTML = `
+    <table style="width:100%;border-collapse:collapse;text-align:center;margin-top:8px;">
+      <tr style="background:#fafafa;font-weight:600;color:#595959;">
+        <td style="padding:6px;border:1px solid #e8e8e8;">指标</td>
+        <td style="padding:6px;border:1px solid #e8e8e8;color:#1890ff;">问界组（${wjMembers}人）</td>
+        <td style="padding:6px;border:1px solid #e8e8e8;color:#722ed1;">鸿蒙组（${hmMembers}人）</td>
+        <td style="padding:6px;border:1px solid #e8e8e8;">差值</td>
+      </tr>
+      <tr><td style="padding:5px;border:1px solid #f0f0f0;">电话</td><td style="padding:5px;border:1px solid #f0f0f0;">${wjSum.phone}</td><td style="padding:5px;border:1px solid #f0f0f0;">${hmSum.phone}</td><td style="padding:5px;border:1px solid #f0f0f0;">${diff(wjSum.phone, hmSum.phone)}</td></tr>
+      <tr style="background:#fafafa"><td style="padding:5px;border:1px solid #f0f0f0;">线索</td><td style="padding:5px;border:1px solid #f0f0f0;">${wjSum.lead}</td><td style="padding:5px;border:1px solid #f0f0f0;">${hmSum.lead}</td><td style="padding:5px;border:1px solid #f0f0f0;">${diff(wjSum.lead, hmSum.lead)}</td></tr>
+      <tr><td style="padding:5px;border:1px solid #f0f0f0;">邀约</td><td style="padding:5px;border:1px solid #f0f0f0;">${wjSum.invite}</td><td style="padding:5px;border:1px solid #f0f0f0;">${hmSum.invite}</td><td style="padding:5px;border:1px solid #f0f0f0;">${diff(wjSum.invite, hmSum.invite)}</td></tr>
+      <tr style="background:#fafafa"><td style="padding:5px;border:1px solid #f0f0f0;">试驾</td><td style="padding:5px;border:1px solid #f0f0f0;">${wjSum.test}</td><td style="padding:5px;border:1px solid #f0f0f0;">${hmSum.test}</td><td style="padding:5px;border:1px solid #f0f0f0;">${diff(wjSum.test, hmSum.test)}</td></tr>
+      <tr><td style="padding:5px;border:1px solid #f0f0f0;">小订</td><td style="padding:5px;border:1px solid #f0f0f0;">${wjSum.small}</td><td style="padding:5px;border:1px solid #f0f0f0;">${hmSum.small}</td><td style="padding:5px;border:1px solid #f0f0f0;">${diff(wjSum.small, hmSum.small)}</td></tr>
+      <tr style="background:#fafafa"><td style="padding:5px;border:1px solid #f0f0f0;">订单</td><td style="padding:5px;border:1px solid #f0f0f0;">${wjSum.order}</td><td style="padding:5px;border:1px solid #f0f0f0;">${hmSum.order}</td><td style="padding:5px;border:1px solid #f0f0f0;">${diff(wjSum.order, hmSum.order)}</td></tr>
+      <tr><td style="padding:5px;border:1px solid #f0f0f0;font-weight:600;">综合积分</td><td style="padding:5px;border:1px solid #f0f0f0;font-weight:600;">${wjSum.score}</td><td style="padding:5px;border:1px solid #f0f0f0;font-weight:600;">${hmSum.score}</td><td style="padding:5px;border:1px solid #f0f0f0;font-weight:600;">${diff(wjSum.score, hmSum.score)}</td></tr>
+    </table>`;
+
+  // 4. 当月日趋势（团队每日表现走势）
+  if (!chartTrend) chartTrend = echarts.init(document.getElementById('chartTrend'));
+  // 取当月所有数据按日期聚合
+  const monthRawData = SALES_DATA.filter(d => d.date.startsWith(selectedMonth));
+  const dayMap = {};
+  for (const d of monthRawData) {
+    if (!dayMap[d.date]) dayMap[d.date] = { phone:0, lead:0, invite:0, test:0, small:0, order:0, score:0, count:0 };
+    dayMap[d.date].phone += d.phone || 0;
+    dayMap[d.date].lead += d.lead || 0;
+    dayMap[d.date].invite += d.invite || 0;
+    dayMap[d.date].test += d.test || 0;
+    dayMap[d.date].small += d.small || 0;
+    dayMap[d.date].order += d.order || 0;
+    dayMap[d.date].score += d.score || 0;
+    dayMap[d.date].count += 1;
+  }
+  const dayDates = Object.keys(dayMap).sort();
+  const dayPhone = dayDates.map(d => dayMap[d].phone);
+  const dayOrder = dayDates.map(d => dayMap[d].order);
+  const dayScore = dayDates.map(d => Math.round(dayMap[d].score * 10) / 10);
+  // 找最高最低积分日
+  let maxScoreIdx = 0, minScoreIdx = 0;
+  for (let i = 1; i < dayScore.length; i++) {
+    if (dayScore[i] > dayScore[maxScoreIdx]) maxScoreIdx = i;
+    if (dayScore[i] < dayScore[minScoreIdx]) minScoreIdx = i;
+  }
+  const avgScore = dayScore.length > 0 ? Math.round(dayScore.reduce((s,v)=>s+v,0) / dayScore.length * 10) / 10 : 0;
+  const shortDates = dayDates.map(d => d.substring(8)); // 只显示日
+  chartTrend.setOption({
+    tooltip: {
+      trigger: 'axis',
+      formatter: function(params) {
+        let r = params[0].axisValue + '<br/>';
+        for (const p of params) {
+          r += p.marker + p.seriesName + '：' + p.value + (p.seriesName === '综合积分' ? ' 分' : '') + '<br/>';
+        }
+        return r;
+      }
+    },
+    legend: { top: 0, textStyle: { fontSize: 11 }, data: ['电话量','订单量','综合积分'] },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'category', data: shortDates, axisLabel: { fontSize: 11 }, name: '日', nameTextStyle: { fontSize: 11, color: '#8c8c8c' } },
+    yAxis: [
+      { type: 'value', name: '数量', nameTextStyle: { fontSize: 11, color: '#8c8c8c' }, splitLine: { lineStyle: { type: 'dashed', color: '#f0f0f0' } } },
+      { type: 'value', name: '积分', nameTextStyle: { fontSize: 11, color: '#8c8c8c' }, splitLine: { show: false } }
+    ],
+    series: [
+      {
+        name: '电话量', type: 'bar', data: dayPhone,
+        itemStyle: { color: '#1890ff', opacity: 0.55 }, barWidth: '35%'
+      },
+      {
+        name: '订单量', type: 'bar', data: dayOrder,
+        itemStyle: { color: '#52c41a', opacity: 0.75 }, barWidth: '35%'
+      },
+      {
+        name: '综合积分', type: 'line', data: dayScore, yAxisIndex: 1,
+        smooth: true, symbol: 'circle', symbolSize: 7,
+        lineStyle: { color: '#f5222d', width: 2.5 },
+        itemStyle: { color: '#f5222d' },
+        markPoint: {
+          symbolSize: 50,
+          data: [
+            { type: 'max', name: '最高' },
+            { type: 'min', name: '最低' }
+          ],
+          label: { fontSize: 11 }
+        },
+        markLine: {
+          silent: true, symbol: 'none',
+          lineStyle: { type: 'dashed', color: '#fa8c16', width: 1.5 },
+          label: { formatter: '日均 {c}', fontSize: 10, color: '#fa8c16' },
+          data: [{ yAxis: avgScore }]
+        }
+      }
+    ]
+  });
+
+  // 6. 个人转化率对比图（谁在白打电话一眼看出）
+  if (!chartConvert) chartConvert = echarts.init(document.getElementById('chartConvert'));
+  const convertNames = agg.map(d => d.name);
+  const safeRate = (a, b) => b > 0 ? Math.round(a / b * 100) : 0;
+  // 3个关键转化率：线索率(线索/电话)、试驾率(试驾/线索)、订单率(订单/电话·整体转化)
+  const leadRate = agg.map(d => safeRate(d.lead, d.phone));
+  const testRate = agg.map(d => safeRate(d.test, d.lead));
+  const orderRate = agg.map(d => safeRate(d.order, d.phone));
+  chartConvert.setOption({
+    tooltip: {
+      trigger: 'axis',
+      formatter: function(params) {
+        let r = params[0].axisValue + '<br/>';
+        for (const p of params) {
+          r += p.marker + p.seriesName + '：' + p.value + '%<br/>';
+        }
+        // 找到这个人的原始数据
+        const person = agg.find(d => d.name === params[0].axisValue);
+        if (person) {
+          r += '———<br/>电话' + person.phone + ' → 线索' + person.lead + ' → 邀约' + person.invite + ' → 试驾' + person.test + ' → 小订' + person.small + ' → 订单' + person.order;
+        }
+        return r;
+      }
+    },
+    legend: { top: 0, textStyle: { fontSize: 11 }, data: ['线索转化率(线索/电话)', '试驾转化率(试驾/线索)', '整体转化率(订单/电话)'] },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'category', data: convertNames, axisLabel: { fontSize: 11, rotate: 20 } },
+    yAxis: { type: 'value', name: '转化率(%)', max: 100, axisLabel: { formatter: '{value}%' } },
+    series: [
+      { name: '线索转化率(线索/电话)', type: 'bar', data: leadRate, itemStyle: { color: '#1890ff' }, barWidth: '20%', label: { show: true, position: 'top', fontSize: 10, formatter: '{c}%' } },
+      { name: '试驾转化率(试驾/线索)', type: 'bar', data: testRate, itemStyle: { color: '#fa8c16' }, barWidth: '20%', label: { show: true, position: 'top', fontSize: 10, formatter: '{c}%' } },
+      { name: '整体转化率(订单/电话)', type: 'bar', data: orderRate, itemStyle: { color: '#52c41a' }, barWidth: '20%', label: { show: true, position: 'top', fontSize: 10, formatter: '{c}%' } },
+    ]
+  });
+}
+
+// ===== 渲染综合积分排名榜表格 =====
+function renderTable(data) {
+  const agg = aggregateData(data);
+  const tag = currentMode === 'day' ? '当日' : '当月累计';
+  document.getElementById('tableTag').textContent = `（${tag} · 按积分降序 · 绿≥8分 红<8分）`;
+  let html = `<tr>
+    <th>销售</th><th>组别</th><th>主管</th>
+    <th>电话</th><th>线索</th><th>邀约</th><th>试驾</th><th>小订</th><th>订单</th>
+    <th>综合积分</th><th>排名</th>
+  </tr>`;
+  const sorted = [...agg].sort((a,b) => b.score - a.score);
+  for (const d of sorted) {
+    const rank = sorted.indexOf(d) + 1;
+    const grpCls = d.group === '问界组' ? 'wj' : 'hm';
+    // 8分分界：≥8绿，<8红
+    const scoreColor = d.score >= 8 ? '#52c41a' : '#f5222d';
+    const scoreBg = d.score >= 8 ? '#f6ffed' : '#fff1f0';
+    html += `<tr${d.score < 8 ? ' style="background:#fff7f7"' : ''}>
+      <td style="font-weight:600">${d.name}</td>
+      <td class="${grpCls}">${d.group}</td>
+      <td>${d.manager}</td>
+      <td>${d.phone}</td><td>${d.lead}</td><td>${d.invite}</td><td>${d.test}</td><td>${d.small}</td><td>${d.order}</td>
+      <td style="font-weight:700;color:${scoreColor};background:${scoreBg}">${d.score.toFixed(1)}</td>
+      <td>${rank}</td>
+    </tr>`;
+  }
+  document.getElementById('dataTable').innerHTML = html;
+}
+
+// ===== 渲染本月剩余工作日提示 =====
+function renderWorkdayReminder() {
+  const today = new Date(selectedDate + 'T00:00:00');
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const lastDay = new Date(year, month + 1, 0);
+  let workdays = 0;
+  const d = new Date(today);
+  d.setDate(d.getDate() + 1);
+  while (d <= lastDay) {
+    const dow = d.getDay();
+    if (dow !== 0 && dow !== 6) workdays++;
+    d.setDate(d.getDate() + 1);
+  }
+  const tip = document.getElementById('workdayTip');
+  if (workdays > 0) {
+    tip.innerHTML = `<div class="workday-tip">⏰ 距月底还有 ${workdays} 个工作日</div>`;
+  } else {
+    tip.innerHTML = `<div class="workday-tip" style="background:#f6ffed;border-color:#95de64;color:#389e0d">✅ 本月工作日已结束</div>`;
+  }
+}
+
+// ===== 主渲染 =====
+function renderAll() {
+  const raw = getCurrentData();
+  const data = aggregateData(raw);
+  renderWorkdayReminder();
+  renderKPI(data);
+  renderInsight(data);
+  renderRank(); // 根据当前模式获取数据
+  renderAlerts();
+  renderCommission();
+  renderCharts(data);
+  renderTable(data);
+}
+
+// 启动
+init();
+window.addEventListener('resize', () => {
+  chartPerf && chartPerf.resize();
+  chartGroup && chartGroup.resize();
+  chartFunnel && chartFunnel.resize();
+  chartTrend && chartTrend.resize();
+  chartConvert && chartConvert.resize();
+});
+</script>
+</body>
+</html>
