@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>南翔门店销售驾驶舱 · 店长视角</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <style>
@@ -225,8 +228,8 @@
   <span style="color:#bfbfbf">数据来源：腾讯文档在线表格 → sync.py → data.js + orders_data.js</span>
 </div>
 
-<script src="data.js"></script>
-<script src="orders_data.js"></script>
+<script>document.write('<script src="data.js?v=' + Date.now() + '"><\/script>');</script>
+<script>document.write('<script src="orders_data.js?v=' + Date.now() + '"><\/script>');</script>
 <script>
 // ===== 全局状态 =====
 let currentMode = 'day'; // day | month | range
