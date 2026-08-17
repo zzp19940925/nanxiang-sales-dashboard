@@ -2,8 +2,11 @@ name: 南翔销售数据自动同步
 
 on:
   schedule:
-    # 每2小时运行一次（UTC时间，北京时间+8）
-    - cron: '0 */2 * * *'
+    # 每天下午6:20和9:40（北京时间）各同步一次
+    # 18:20 CST = 10:20 UTC
+    - cron: '20 10 * * *'
+    # 21:40 CST = 13:40 UTC
+    - cron: '40 13 * * *'
   workflow_dispatch: # 支持手动触发
 
 permissions:
