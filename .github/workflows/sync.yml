@@ -1,0 +1,44 @@
+name: 南翔销售数据自动同步
+
+on:
+  schedule:
+    # 每2小时运行一次（UTC时间，北京时间+8）
+    - cron: '0 */2 * * *'
+  workflow_dispatch: # 支持手动触发
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 安装依赖
+        run: pip install pandas python-calamine
+
+      - name: 同步数据
+        env:
+          TDOC_ACCESS_TOKEN: ${{ secrets.TDOC_ACCESS_TOKEN }}
+          TDOC_REFRESH_TOKEN: ${{ secrets.TDOC_REFRESH_TOKEN }}
+          TDOC_CLIENT_ID: ${{ secrets.TDOC_CLIENT_ID }}
+        run: python sync.py
+
+      - name: 提交更新
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.js orders_data.js
+          if git diff --staged --quiet; then
+            echo "数据无变化，跳过提交"
+          else
+            git commit -m "自动同步: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            git push
+          fi
