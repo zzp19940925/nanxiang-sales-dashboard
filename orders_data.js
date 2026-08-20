@@ -1,5 +1,5 @@
 // 自动生成 - 请勿手动修改
-// 生成时间: 2026-08-20 05:00:52
+// 生成时间: 2026-08-20 11:47:33
 
 var ordersData = [
   {
@@ -193,7 +193,7 @@ var ordersData = [
     "brand": "尚界",
     "plate": "免费绿牌",
     "order_no": "",
-    "review": "",
+    "review": "是",
     "sale_commission": 1200,
     "mgr_commission": 600,
     "status": "正常"
@@ -249,7 +249,7 @@ var ordersData = [
     "brand": "尚界",
     "plate": "",
     "order_no": "",
-    "review": "",
+    "review": "是",
     "sale_commission": 1200,
     "mgr_commission": 600,
     "status": "正常"
@@ -487,7 +487,7 @@ var ordersData = [
     "brand": "问界",
     "plate": "免费绿牌",
     "order_no": "",
-    "review": "",
+    "review": "不需要",
     "sale_commission": 800,
     "mgr_commission": 400,
     "status": "正常"
@@ -631,6 +631,20 @@ var ordersData = [
     "sale_commission": 1000,
     "mgr_commission": 600,
     "status": "正常"
+  },
+  {
+    "date": "2026-08-20",
+    "month": "8月",
+    "sales": "丁露",
+    "customer": "谭韡",
+    "car": "G9",
+    "brand": "享界",
+    "plate": "免费公牌",
+    "order_no": "2873350598354643.0",
+    "review": "",
+    "sale_commission": 3000,
+    "mgr_commission": 1500,
+    "status": "正常"
   }
 ];
 
@@ -723,12 +737,12 @@ var commissionData = {
       {
         "name": "丁露",
         "target": 3,
-        "order_count": 3,
-        "rate": 1.0,
+        "order_count": 4,
+        "rate": 1.333,
         "coeff": 1.0,
-        "sale_commission": 3200,
-        "mgr_commission": 1900,
-        "final_commission": 3200
+        "sale_commission": 6200,
+        "mgr_commission": 3400,
+        "final_commission": 6200
       },
       {
         "name": "任天翔",
@@ -754,11 +768,11 @@ var commissionData = {
     "manager": {
       "name": "周志鹏",
       "target": 13,
-      "order_count": 6,
-      "rate": 0.462,
+      "order_count": 7,
+      "rate": 0.538,
       "coeff": 0.5,
-      "commission_base": 3500,
-      "final_commission": 1750
+      "commission_base": 5000,
+      "final_commission": 2500
     }
   },
   "9月": {
