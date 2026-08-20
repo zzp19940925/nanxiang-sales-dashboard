@@ -1,5 +1,5 @@
 // 自动生成 - 请勿手动修改
-// 生成时间: 2026-08-19 15:05:23
+// 生成时间: 2026-08-20 05:00:52
 
 var ordersData = [
   {
@@ -617,6 +617,20 @@ var ordersData = [
     "sale_commission": 1000,
     "mgr_commission": 600,
     "status": "正常"
+  },
+  {
+    "date": "2026-08-19",
+    "month": "8月",
+    "sales": "任天翔",
+    "customer": "徐华平",
+    "car": "M7 EVR",
+    "brand": "问界",
+    "plate": "个人大牌",
+    "order_no": "2873366397657957.0",
+    "review": "不需要",
+    "sale_commission": 1000,
+    "mgr_commission": 600,
+    "status": "正常"
   }
 ];
 
@@ -719,12 +733,12 @@ var commissionData = {
       {
         "name": "任天翔",
         "target": 3,
-        "order_count": 0,
-        "rate": 0.0,
+        "order_count": 1,
+        "rate": 0.333,
         "coeff": 1.0,
-        "sale_commission": 0,
-        "mgr_commission": 0,
-        "final_commission": 0
+        "sale_commission": 1000,
+        "mgr_commission": 600,
+        "final_commission": 1000
       },
       {
         "name": "刘洋",
@@ -740,11 +754,11 @@ var commissionData = {
     "manager": {
       "name": "周志鹏",
       "target": 13,
-      "order_count": 5,
-      "rate": 0.385,
+      "order_count": 6,
+      "rate": 0.462,
       "coeff": 0.5,
-      "commission_base": 2900,
-      "final_commission": 1450
+      "commission_base": 3500,
+      "final_commission": 1750
     }
   },
   "9月": {
