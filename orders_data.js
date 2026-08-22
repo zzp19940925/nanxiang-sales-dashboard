@@ -1,5 +1,5 @@
 // 自动生成 - 请勿手动修改
-// 生成时间: 2026-08-21 15:07:23
+// 生成时间: 2026-08-22 11:00:23
 
 var ordersData = [
   {
@@ -645,6 +645,20 @@ var ordersData = [
     "sale_commission": 3000,
     "mgr_commission": 1500,
     "status": "正常"
+  },
+  {
+    "date": "2026-08-22",
+    "month": "8月",
+    "sales": "任天翔",
+    "customer": "程世玉",
+    "car": "Z7T",
+    "brand": "尚界",
+    "plate": "免费公牌",
+    "order_no": "2873371458461898.0",
+    "review": "",
+    "sale_commission": 1400,
+    "mgr_commission": 800,
+    "status": "正常"
   }
 ];
 
@@ -747,12 +761,12 @@ var commissionData = {
       {
         "name": "任天翔",
         "target": 3,
-        "order_count": 1,
-        "rate": 0.333,
+        "order_count": 2,
+        "rate": 0.667,
         "coeff": 1.0,
-        "sale_commission": 1000,
-        "mgr_commission": 600,
-        "final_commission": 1000
+        "sale_commission": 2400,
+        "mgr_commission": 1400,
+        "final_commission": 2400
       },
       {
         "name": "刘洋",
@@ -768,11 +782,11 @@ var commissionData = {
     "manager": {
       "name": "周志鹏",
       "target": 13,
-      "order_count": 7,
-      "rate": 0.538,
-      "coeff": 0.5,
-      "commission_base": 5000,
-      "final_commission": 2500
+      "order_count": 8,
+      "rate": 0.615,
+      "coeff": 0.7,
+      "commission_base": 5800,
+      "final_commission": 4060
     }
   },
   "9月": {
