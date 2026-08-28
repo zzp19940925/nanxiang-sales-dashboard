@@ -1,5 +1,5 @@
 // 自动生成 - 请勿手动修改
-// 生成时间: 2026-08-26 16:39:07
+// 生成时间: 2026-08-28 21:49:28
 
 var SALES_DATA = [
   {
@@ -7008,6 +7008,136 @@ var SALES_DATA = [
     "small": 0,
     "order": 0,
     "score": 7.0
+  },
+  {
+    "date": "2026-08-27",
+    "name": "丁露",
+    "group": "问界组",
+    "manager": "周志鹏",
+    "phone": 43,
+    "lead": 2,
+    "invite": 2,
+    "test": 2,
+    "small": 0,
+    "order": 0,
+    "score": 11.0
+  },
+  {
+    "date": "2026-08-27",
+    "name": "乔浩",
+    "group": "问界组",
+    "manager": "周志鹏",
+    "phone": 59,
+    "lead": 2,
+    "invite": 1,
+    "test": 0,
+    "small": 0,
+    "order": 0,
+    "score": 6.0
+  },
+  {
+    "date": "2026-08-27",
+    "name": "任天翔",
+    "group": "问界组",
+    "manager": "周志鹏",
+    "phone": 19,
+    "lead": 1,
+    "invite": 0,
+    "test": 1,
+    "small": 0,
+    "order": 0,
+    "score": 4.9
+  },
+  {
+    "date": "2026-08-27",
+    "name": "刘洋",
+    "group": "问界组",
+    "manager": "周志鹏",
+    "phone": 8,
+    "lead": 0,
+    "invite": 0,
+    "test": 0,
+    "small": 0,
+    "order": 0,
+    "score": 0.8
+  },
+  {
+    "date": "2026-08-27",
+    "name": "罗松",
+    "group": "问界组",
+    "manager": "周志鹏",
+    "phone": 40,
+    "lead": 0,
+    "invite": 1,
+    "test": 1,
+    "small": 0,
+    "order": 0,
+    "score": 6.0
+  },
+  {
+    "date": "2026-08-27",
+    "name": "卢念念",
+    "group": "鸿蒙组",
+    "manager": "熊峰",
+    "phone": 40,
+    "lead": 1,
+    "invite": 0,
+    "test": 2,
+    "small": 0,
+    "order": 0,
+    "score": 8.0
+  },
+  {
+    "date": "2026-08-27",
+    "name": "张晴",
+    "group": "鸿蒙组",
+    "manager": "熊峰",
+    "phone": 40,
+    "lead": 2,
+    "invite": 3,
+    "test": 0,
+    "small": 0,
+    "order": 0,
+    "score": 8.0
+  },
+  {
+    "date": "2026-08-27",
+    "name": "戴亚强",
+    "group": "鸿蒙组",
+    "manager": "熊峰",
+    "phone": 13,
+    "lead": 0,
+    "invite": 0,
+    "test": 0,
+    "small": 0,
+    "order": 0,
+    "score": 1.3
+  },
+  {
+    "date": "2026-08-27",
+    "name": "杨志",
+    "group": "鸿蒙组",
+    "manager": "熊峰",
+    "phone": 6,
+    "lead": 0,
+    "invite": 0,
+    "test": 0,
+    "small": 0,
+    "order": 0,
+    "score": 0.6
+  },
+  {
+    "date": "2026-08-27",
+    "name": "陆垣铮",
+    "group": "鸿蒙组",
+    "manager": "熊峰",
+    "phone": 39,
+    "lead": 1,
+    "invite": 0,
+    "test": 2,
+    "small": 0,
+    "order": 0,
+    "score": 8.0
   }
 ];
 
