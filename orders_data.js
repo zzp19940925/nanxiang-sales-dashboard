@@ -1,5 +1,5 @@
 // 自动生成 - 请勿手动修改
-// 生成时间: 2026-08-31 12:55:20
+// 生成时间: 2026-08-31 13:17:38
 
 var ordersData = [
   {
@@ -738,6 +738,67 @@ var commissionData = {
       "coeff": 1.2,
       "commission_base": 8500,
       "final_commission": 10200
+    },
+    "hm_sales": [
+      {
+        "name": "杨志",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "卢念念",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "戴亚强",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "张晴",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "陆垣铮",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      }
+    ],
+    "hm_manager": {
+      "name": "熊峰",
+      "target": 0,
+      "order_count": 0,
+      "rate": 0,
+      "coeff": 0.5,
+      "commission_base": 0,
+      "final_commission": 0
     }
   },
   "8月": {
@@ -801,6 +862,67 @@ var commissionData = {
       "coeff": 0.5,
       "commission_base": 6300,
       "final_commission": 3150
+    },
+    "hm_sales": [
+      {
+        "name": "杨志",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 1.0,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "卢念念",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 1.0,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "戴亚强",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 1.0,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "张晴",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 1.0,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "陆垣铮",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 1.0,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      }
+    ],
+    "hm_manager": {
+      "name": "熊峰",
+      "target": 0,
+      "order_count": 0,
+      "rate": 0,
+      "coeff": 0.5,
+      "commission_base": 0,
+      "final_commission": 0
     }
   },
   "9月": {
@@ -861,6 +983,67 @@ var commissionData = {
       "target": 14,
       "order_count": 0,
       "rate": 0.0,
+      "coeff": 0.5,
+      "commission_base": 0,
+      "final_commission": 0
+    },
+    "hm_sales": [
+      {
+        "name": "杨志",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "卢念念",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "戴亚强",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "张晴",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "陆垣铮",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      }
+    ],
+    "hm_manager": {
+      "name": "熊峰",
+      "target": 0,
+      "order_count": 0,
+      "rate": 0,
       "coeff": 0.5,
       "commission_base": 0,
       "final_commission": 0
@@ -927,6 +1110,67 @@ var commissionData = {
       "coeff": 0.5,
       "commission_base": 0,
       "final_commission": 0
+    },
+    "hm_sales": [
+      {
+        "name": "杨志",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "卢念念",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "戴亚强",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "张晴",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "陆垣铮",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      }
+    ],
+    "hm_manager": {
+      "name": "熊峰",
+      "target": 0,
+      "order_count": 0,
+      "rate": 0,
+      "coeff": 0.5,
+      "commission_base": 0,
+      "final_commission": 0
     }
   },
   "11月": {
@@ -990,6 +1234,67 @@ var commissionData = {
       "coeff": 0.5,
       "commission_base": 0,
       "final_commission": 0
+    },
+    "hm_sales": [
+      {
+        "name": "杨志",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "卢念念",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "戴亚强",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "张晴",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "陆垣铮",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      }
+    ],
+    "hm_manager": {
+      "name": "熊峰",
+      "target": 0,
+      "order_count": 0,
+      "rate": 0,
+      "coeff": 0.5,
+      "commission_base": 0,
+      "final_commission": 0
     }
   },
   "12月": {
@@ -1050,6 +1355,67 @@ var commissionData = {
       "target": 14,
       "order_count": 0,
       "rate": 0.0,
+      "coeff": 0.5,
+      "commission_base": 0,
+      "final_commission": 0
+    },
+    "hm_sales": [
+      {
+        "name": "杨志",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "卢念念",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "戴亚强",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "张晴",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      },
+      {
+        "name": "陆垣铮",
+        "target": 0,
+        "order_count": 0,
+        "rate": 0,
+        "coeff": 0.5,
+        "sale_commission": 0,
+        "mgr_commission": 0,
+        "final_commission": 0
+      }
+    ],
+    "hm_manager": {
+      "name": "熊峰",
+      "target": 0,
+      "order_count": 0,
+      "rate": 0,
       "coeff": 0.5,
       "commission_base": 0,
       "final_commission": 0
