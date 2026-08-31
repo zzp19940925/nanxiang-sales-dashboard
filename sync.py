@@ -57,6 +57,7 @@ def read_sales_info():
     df = tdoc_reader.read_excel(None, sheet_name="设置", header=None)
     info = {}
     wj_members = []
+    hm_members = []
     for i in range(4, 20):  # 0-indexed 行4-19 = Excel行5-20
         name = df.iloc[i, 0]
         if pd.isna(name) or str(name).strip() == "":
@@ -70,11 +71,13 @@ def read_sales_info():
         info[name] = {"group": group, "manager": manager}
         if group == "问界组":
             wj_members.append(name)
-    return info, wj_members
+        elif group == "鸿蒙组":
+            hm_members.append(name)
+    return info, wj_members, hm_members
 
 
 # 启动时动态读取（不再硬编码）
-SALES_INFO, WENJIE_MEMBERS = read_sales_info()
+SALES_INFO, WENJIE_MEMBERS, HM_MEMBERS = read_sales_info()
 
 
 def read_workload():
@@ -293,10 +296,10 @@ def read_targets():
     """读取月度目标（按表头列名匹配，不按位置顺序）
     这样月度目标表加新销售列时，即使列顺序变化也能正确读取"""
     df = tdoc_reader.read_excel(None, sheet_name="设置", header=None)
-    # 找"月度订单目标"行
+    # 找"月度订单目标"行（标题曾为"月度订单目标（问界组）"，后加鸿蒙组改名）
     target_start = None
     for i, row in df.iterrows():
-        if row[0] == "月度订单目标（问界组）":
+        if pd.notna(row[0]) and str(row[0]).strip().startswith("月度订单目标"):
             target_start = i
             break
     if target_start is None:
@@ -317,20 +320,21 @@ def read_targets():
             continue
         month_str = str(month_label).strip()
         targets[month_str] = {}
-        # 按表头列名读取每个问界组成员的目标
-        for name in WENJIE_MEMBERS:
+        # 按表头列名读取问界组+鸿蒙组成员的目标
+        for name in WENJIE_MEMBERS + HM_MEMBERS:
             if name in col_map:
                 val = df.iloc[r, col_map[name]]
                 targets[month_str][name] = int(val) if pd.notna(val) else 0
             else:
                 # 月度目标表没有该销售的列 → 目标0（提示用户手动添加）
                 targets[month_str][name] = 0
-        # 主管目标：读"主管"列（固定19台），没有则用19
-        # 主管目标 = 问界组所有销售目标之和（自动求和，不读取Excel公式缓存）
-        mgr_target = sum(
+        # 主管目标 = 本组所有销售目标之和（自动求和，不读取Excel公式缓存）
+        targets[month_str]["主管"] = sum(
             targets[month_str].get(name, 0) for name in WENJIE_MEMBERS
         )
-        targets[month_str]["主管"] = mgr_target
+        targets[month_str]["鸿蒙主管"] = sum(
+            targets[month_str].get(name, 0) for name in HM_MEMBERS
+        )
     return targets
 
 
@@ -343,55 +347,85 @@ def get_coeff(rate):
     else: return 1.2
 
 
+def calc_group_commission(month_orders, month_targets, members, mgr_name, mgr_target_key,
+                          is_august, mgr_count_rule):
+    """计算单个组的提成统计
+    mgr_count_rule: 主管达标率的订单计数规则
+      - "问界": 只统计品牌=问界的订单（周志鹏）
+      - "非问界": 只统计品牌≠问界的订单，即鸿蒙订单（熊峰）
+    提成基数始终是本组全部订单的主管提成合计
+    """
+    sales_stats = []
+    mgr_sale_comm = 0
+    mgr_target = month_targets.get(mgr_target_key, 0)
+    for name in members:
+        my_orders = [o for o in month_orders if o["sales"] == name]
+        order_count = len(my_orders)
+        sale_comm = sum(o["sale_commission"] for o in my_orders)
+        mgr_comm = sum(o["mgr_commission"] for o in my_orders)
+        target = month_targets.get(name, 0)
+        rate = order_count / target if target > 0 else 0
+        # 8月：销售不乘完成率系数（coeff=1.0）
+        coeff = 1.0 if is_august else get_coeff(rate)
+        final = sale_comm * coeff
+        sales_stats.append({
+            "name": name, "target": target, "order_count": order_count,
+            "rate": round(rate, 3), "coeff": coeff,
+            "sale_commission": sale_comm, "mgr_commission": mgr_comm,
+            "final_commission": round(final),
+        })
+        mgr_sale_comm += mgr_comm
+    # 主管达标率：按规则过滤品牌
+    if mgr_count_rule == "问界":
+        mgr_order_count = sum(
+            1 for o in month_orders
+            if o["sales"] in members and str(o.get("brand", "")).strip() == "问界"
+        )
+    else:  # 非问界（鸿蒙订单）：问界订单不计入达标率
+        mgr_order_count = sum(
+            1 for o in month_orders
+            if o["sales"] in members and str(o.get("brand", "")).strip() != "问界"
+        )
+    # 主管提成：8月保持完成率系数（与销售不同）
+    mgr_rate = mgr_order_count / mgr_target if mgr_target > 0 else 0
+    mgr_coeff = get_coeff(mgr_rate)  # 主管始终按系数计算
+    mgr_final = mgr_sale_comm * mgr_coeff
+    return {
+        "sales": sales_stats,
+        "manager": {
+            "name": mgr_name, "target": mgr_target, "order_count": mgr_order_count,
+            "rate": round(mgr_rate, 3), "coeff": mgr_coeff,
+            "commission_base": mgr_sale_comm, "final_commission": round(mgr_final),
+        },
+    }
+
+
 def calc_commission(orders, targets):
-    """计算问界组提成统计
+    """计算问界组+鸿蒙组提成统计
     8月新政：销售提成不再乘完成率系数（coeff=1.0），主管提成保持系数
     其他月份：销售/主管都乘完成率系数
+    主管达标率：周志鹏按问界品牌订单，熊峰按非问界（鸿蒙）订单
     """
     AUGUST_NO_COEFF_MONTHS = {"8月"}  # 销售取消完成率系数的月份
     result = {}
     for month_str, month_targets in targets.items():
         # 只统计状态为"正常"的订单（空状态也当正常，退订/转单不计入提成）
         month_orders = [o for o in orders if o["month"] == month_str and o.get("status", "正常") == "正常"]
-        sales_stats = []
-        mgr_sale_comm = 0
-        mgr_target = month_targets.get("主管", 19)  # 主管目标固定19台
         is_august = month_str in AUGUST_NO_COEFF_MONTHS
-        for name in WENJIE_MEMBERS:
-            my_orders = [o for o in month_orders if o["sales"] == name]
-            order_count = len(my_orders)
-            sale_comm = sum(o["sale_commission"] for o in my_orders)
-            mgr_comm = sum(o["mgr_commission"] for o in my_orders)
-            target = month_targets.get(name, 0)
-            rate = order_count / target if target > 0 else 0
-            # 8月：销售不乘完成率系数（coeff=1.0）
-            coeff = 1.0 if is_august else get_coeff(rate)
-            final = sale_comm * coeff
-            sales_stats.append({
-                "name": name, "target": target, "order_count": order_count,
-                "rate": round(rate, 3), "coeff": coeff,
-                "sale_commission": sale_comm, "mgr_commission": mgr_comm,
-                "final_commission": round(final),
-            })
-            mgr_sale_comm += mgr_comm
-        # 主管提成：系数按「问界品牌」订单的达标率计算（尚界/享界等订单不计入达标率）
-        # 提成基数仍是全部订单的主管提成合计，只有系数按问界达标率
-        mgr_order_count = sum(
-            1 for o in month_orders
-            if o["sales"] in WENJIE_MEMBERS and str(o.get("brand", "")).strip() == "问界"
+        # 问界组（主管周志鹏：达标率只算问界品牌订单）
+        wj = calc_group_commission(
+            month_orders, month_targets, WENJIE_MEMBERS, "周志鹏", "主管",
+            is_august, mgr_count_rule="问界",
         )
-        # 主管提成：8月保持完成率系数（与销售不同）
-        mgr_rate = mgr_order_count / mgr_target if mgr_target > 0 else 0
-        mgr_coeff = get_coeff(mgr_rate)  # 主管始终按系数计算
-        mgr_final = mgr_sale_comm * mgr_coeff
-        result[month_str] = {
-            "sales": sales_stats,
-            "manager": {
-                "name": "周志鹏", "target": mgr_target, "order_count": mgr_order_count,
-                "rate": round(mgr_rate, 3), "coeff": mgr_coeff,
-                "commission_base": mgr_sale_comm, "final_commission": round(mgr_final),
-            }
-        }
+        result[month_str] = wj
+        # 鸿蒙组（主管熊峰：达标率只算非问界订单，问界订单不计数）
+        if HM_MEMBERS:
+            hm = calc_group_commission(
+                month_orders, month_targets, HM_MEMBERS, "熊峰", "鸿蒙主管",
+                is_august, mgr_count_rule="非问界",
+            )
+            result[month_str]["hm_sales"] = hm["sales"]
+            result[month_str]["hm_manager"] = hm["manager"]
     return result
 
 
@@ -444,6 +478,7 @@ def main():
         f.write(f"// 生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
         f.write(f"var SALES_DATA = {json.dumps(workload, ensure_ascii=False, indent=2)};\n\n")
         f.write(f"var WENJIE_MEMBERS = {json.dumps(WENJIE_MEMBERS, ensure_ascii=False)};\n\n")
+        f.write(f"var HM_MEMBERS = {json.dumps(HM_MEMBERS, ensure_ascii=False)};\n\n")
         f.write(f"var ALL_SALES = {json.dumps(list(SALES_INFO.keys()), ensure_ascii=False)};\n\n")
         f.write(f"var SALES_INFO = {json.dumps(SALES_INFO, ensure_ascii=False, indent=2)};\n")
     print(f"✅ 生成 data.js")
@@ -470,6 +505,23 @@ def main():
         m = data["manager"]
         print("  " + "-" * 50)
         print(f"  {'主管(问界)':<6} {m['target']:>4} {m['order_count']:>4} {m['rate']:>7.1%} {m['coeff']:>6.1f} {m['commission_base']:>8} {m['final_commission']:>8}")
+
+    if HM_MEMBERS:
+        print("\n" + "=" * 50)
+        print("  鸿蒙组提成汇总")
+        print("=" * 50)
+        for month_str in sorted(commission.keys(), key=lambda x: int(x.replace("月", ""))):
+            data = commission[month_str]
+            if "hm_sales" not in data:
+                continue
+            print(f"\n  【{month_str}】")
+            print(f"  {'销售':<6} {'目标':>4} {'订单':>4} {'完成率':>8} {'系数':>6} {'提成基数':>8} {'最终提成':>8}")
+            print("  " + "-" * 50)
+            for s in data["hm_sales"]:
+                print(f"  {s['name']:<6} {s['target']:>4} {s['order_count']:>4} {s['rate']:>7.1%} {s['coeff']:>6.1f} {s['sale_commission']:>8} {s['final_commission']:>8}")
+            m = data["hm_manager"]
+            print("  " + "-" * 50)
+            print(f"  {'主管(鸿蒙)':<6} {m['target']:>4} {m['order_count']:>4} {m['rate']:>7.1%} {m['coeff']:>6.1f} {m['commission_base']:>8} {m['final_commission']:>8}")
 
     print("\n✅ 同步完成！刷新看板即可查看最新数据。")
     if not os.environ.get("CI"):
