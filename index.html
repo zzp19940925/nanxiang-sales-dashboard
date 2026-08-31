@@ -3,9 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <title>南翔门店销售驾驶舱 · 店长视角</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <style>
@@ -192,6 +189,15 @@
   <table class="comm-table" id="commTable"></table>
 </div>
 
+<!-- 鸿蒙组提成统计 -->
+<div class="panel">
+  <div class="panel-title">
+    💰 鸿蒙组提成统计
+    <span class="tag" id="commTagHM">（7月）</span>
+  </div>
+  <table class="comm-table" id="commTableHM"></table>
+</div>
+
 <!-- 图表区 -->
 <div class="chart-grid">
   <div class="chart-box">
@@ -228,8 +234,8 @@
   <span style="color:#bfbfbf">数据来源：腾讯文档在线表格 → sync.py → data.js + orders_data.js</span>
 </div>
 
-<script>document.write('<script src="data.js?v=' + Date.now() + '"><\/script>');</script>
-<script>document.write('<script src="orders_data.js?v=' + Date.now() + '"><\/script>');</script>
+<script src="data.js"></script>
+<script src="orders_data.js"></script>
 <script>
 // ===== 全局状态 =====
 let currentMode = 'day'; // day | month | range
@@ -556,44 +562,57 @@ function renderCommission() {
   const monthNum = parseInt(selectedDate.substring(5, 7));
   const monthKey = monthNum + '月';
   document.getElementById('commTag').textContent = `（${monthKey}）`;
+  document.getElementById('commTagHM').textContent = `（${monthKey}）`;
 
   const comm = (typeof commissionData !== 'undefined' && commissionData[monthKey]) ? commissionData[monthKey] : null;
-  if (!comm) {
-    document.getElementById('commTable').innerHTML = `<tr><td colspan="8" style="padding:20px;color:#8c8c8c">${monthKey}暂无订单数据</td></tr>`;
-    return;
-  }
   const rateColor = (r) => r >= 1 ? '#52c41a' : r >= 0.6 ? '#fa8c16' : '#f5222d';
-  let html = `<tr>
-    <th>销售</th><th>目标</th><th>订单</th><th>完成率</th><th>系数</th><th>提成基数</th><th>最终提成</th><th>状态</th>
-  </tr>`;
-  for (const s of comm.sales) {
-    const ratePct = (s.rate * 100).toFixed(0);
-    const status = s.rate >= 1 ? '🟢达标' : s.rate >= 0.6 ? '🟡努力' : '🔴落后';
-    html += `<tr>
-      <td style="font-weight:600">${s.name}</td>
-      <td>${s.target}单</td>
-      <td>${s.order_count}单</td>
-      <td><span class="rate-bar"><span class="rate-fill" style="width:${Math.min(ratePct,100)}%;background:${rateColor(s.rate)}"></span></span>${ratePct}%</td>
-      <td>${s.coeff.toFixed(1)}</td>
-      <td>${s.sale_commission}元</td>
-      <td style="font-weight:700;color:#f5222d">${s.final_commission}元</td>
-      <td>${status}</td>
+  const buildTable = (salesArr, manager, emptyText) => {
+    if (!salesArr || salesArr.length === 0) {
+      return `<tr><td colspan="8" style="padding:20px;color:#8c8c8c">${emptyText}</td></tr>`;
+    }
+    let html = `<tr>
+      <th>销售</th><th>目标</th><th>订单</th><th>完成率</th><th>系数</th><th>提成基数</th><th>最终提成</th><th>状态</th>
     </tr>`;
-  }
-  // 主管汇总
-  const m = comm.manager;
-  const mgrPct = (m.rate * 100).toFixed(0);
-  html += `<tr class="mgr-row">
-    <td>${m.name}（主管）</td>
-    <td>${m.target}单</td>
-    <td>${m.order_count}单</td>
-    <td><span class="rate-bar"><span class="rate-fill" style="width:${Math.min(mgrPct,100)}%;background:${rateColor(m.rate)}"></span></span>${mgrPct}%</td>
-    <td>${m.coeff.toFixed(1)}</td>
-    <td>${m.commission_base}元</td>
-    <td style="color:#f5222d">${m.final_commission}元</td>
-    <td>主管提成</td>
-  </tr>`;
-  document.getElementById('commTable').innerHTML = html;
+    for (const s of salesArr) {
+      const ratePct = (s.rate * 100).toFixed(0);
+      const status = s.target > 0
+        ? (s.rate >= 1 ? '🟢达标' : s.rate >= 0.6 ? '🟡努力' : '🔴落后')
+        : '⚪未设目标';
+      html += `<tr>
+        <td style="font-weight:600">${s.name}</td>
+        <td>${s.target}单</td>
+        <td>${s.order_count}单</td>
+        <td><span class="rate-bar"><span class="rate-fill" style="width:${Math.min(ratePct,100)}%;background:${rateColor(s.rate)}"></span></span>${ratePct}%</td>
+        <td>${s.coeff.toFixed(1)}</td>
+        <td>${s.sale_commission}元</td>
+        <td style="font-weight:700;color:#f5222d">${s.final_commission}元</td>
+        <td>${status}</td>
+      </tr>`;
+    }
+    // 主管汇总
+    if (manager) {
+      const mgrPct = (manager.rate * 100).toFixed(0);
+      html += `<tr class="mgr-row">
+        <td>${manager.name}（主管）</td>
+        <td>${manager.target}单</td>
+        <td>${manager.order_count}单</td>
+        <td><span class="rate-bar"><span class="rate-fill" style="width:${Math.min(mgrPct,100)}%;background:${rateColor(manager.rate)}"></span></span>${mgrPct}%</td>
+        <td>${manager.coeff.toFixed(1)}</td>
+        <td>${manager.commission_base}元</td>
+        <td style="color:#f5222d">${manager.final_commission}元</td>
+        <td>主管提成</td>
+      </tr>`;
+    }
+    return html;
+  };
+  // 问界组
+  document.getElementById('commTable').innerHTML = comm
+    ? buildTable(comm.sales, comm.manager, `${monthKey}暂无订单数据`)
+    : `<tr><td colspan="8" style="padding:20px;color:#8c8c8c">${monthKey}暂无订单数据</td></tr>`;
+  // 鸿蒙组
+  document.getElementById('commTableHM').innerHTML = comm
+    ? buildTable(comm.hm_sales, comm.hm_manager, `${monthKey}鸿蒙组暂无订单（在订单明细录入姓名+车型即自动统计）`)
+    : `<tr><td colspan="8" style="padding:20px;color:#8c8c8c">${monthKey}鸿蒙组暂无订单（在订单明细录入姓名+车型即自动统计）</td></tr>`;
 }
 
 // ===== 渲染洞察 =====
