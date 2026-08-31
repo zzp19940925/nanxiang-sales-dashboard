@@ -1,5 +1,5 @@
 // 自动生成 - 请勿手动修改
-// 生成时间: 2026-08-30 13:43:33
+// 生成时间: 2026-08-31 11:46:18
 
 var ordersData = [
   {
@@ -659,6 +659,20 @@ var ordersData = [
     "sale_commission": 1400,
     "mgr_commission": 800,
     "status": "正常"
+  },
+  {
+    "date": "2026-08-30",
+    "month": "8月",
+    "sales": "罗松",
+    "customer": "朱东坡",
+    "car": "M6 EV",
+    "brand": "问界",
+    "plate": "免费绿牌",
+    "order_no": "2873373259940159.0",
+    "review": "",
+    "sale_commission": 800,
+    "mgr_commission": 500,
+    "status": "正常"
   }
 ];
 
@@ -719,8 +733,8 @@ var commissionData = {
     "manager": {
       "name": "周志鹏",
       "target": 9,
-      "order_count": 15,
-      "rate": 1.667,
+      "order_count": 14,
+      "rate": 1.556,
       "coeff": 1.2,
       "commission_base": 8500,
       "final_commission": 10200
@@ -731,12 +745,12 @@ var commissionData = {
       {
         "name": "罗松",
         "target": 3,
-        "order_count": 2,
-        "rate": 0.667,
+        "order_count": 3,
+        "rate": 1.0,
         "coeff": 1.0,
-        "sale_commission": 1600,
-        "mgr_commission": 1000,
-        "final_commission": 1600
+        "sale_commission": 2400,
+        "mgr_commission": 1500,
+        "final_commission": 2400
       },
       {
         "name": "乔浩",
@@ -782,11 +796,11 @@ var commissionData = {
     "manager": {
       "name": "周志鹏",
       "target": 13,
-      "order_count": 8,
-      "rate": 0.615,
-      "coeff": 0.7,
-      "commission_base": 5800,
-      "final_commission": 4060
+      "order_count": 6,
+      "rate": 0.462,
+      "coeff": 0.5,
+      "commission_base": 6300,
+      "final_commission": 3150
     }
   },
   "9月": {
