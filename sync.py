@@ -355,7 +355,6 @@ def calc_commission(orders, targets):
         month_orders = [o for o in orders if o["month"] == month_str and o.get("status", "正常") == "正常"]
         sales_stats = []
         mgr_sale_comm = 0
-        mgr_order_count = 0
         mgr_target = month_targets.get("主管", 19)  # 主管目标固定19台
         is_august = month_str in AUGUST_NO_COEFF_MONTHS
         for name in WENJIE_MEMBERS:
@@ -375,7 +374,12 @@ def calc_commission(orders, targets):
                 "final_commission": round(final),
             })
             mgr_sale_comm += mgr_comm
-            mgr_order_count += order_count
+        # 主管提成：系数按「问界品牌」订单的达标率计算（尚界/享界等订单不计入达标率）
+        # 提成基数仍是全部订单的主管提成合计，只有系数按问界达标率
+        mgr_order_count = sum(
+            1 for o in month_orders
+            if o["sales"] in WENJIE_MEMBERS and str(o.get("brand", "")).strip() == "问界"
+        )
         # 主管提成：8月保持完成率系数（与销售不同）
         mgr_rate = mgr_order_count / mgr_target if mgr_target > 0 else 0
         mgr_coeff = get_coeff(mgr_rate)  # 主管始终按系数计算
@@ -465,7 +469,7 @@ def main():
             print(f"  {s['name']:<6} {s['target']:>4} {s['order_count']:>4} {s['rate']:>7.1%} {s['coeff']:>6.1f} {s['sale_commission']:>8} {s['final_commission']:>8}")
         m = data["manager"]
         print("  " + "-" * 50)
-        print(f"  {'主管汇总':<6} {m['target']:>4} {m['order_count']:>4} {m['rate']:>7.1%} {m['coeff']:>6.1f} {m['commission_base']:>8} {m['final_commission']:>8}")
+        print(f"  {'主管(问界)':<6} {m['target']:>4} {m['order_count']:>4} {m['rate']:>7.1%} {m['coeff']:>6.1f} {m['commission_base']:>8} {m['final_commission']:>8}")
 
     print("\n✅ 同步完成！刷新看板即可查看最新数据。")
     if not os.environ.get("CI"):
