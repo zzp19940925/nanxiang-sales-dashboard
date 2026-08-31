@@ -418,11 +418,11 @@ def calc_commission(orders, targets):
             is_august, mgr_count_rule="问界",
         )
         result[month_str] = wj
-        # 鸿蒙组（主管熊峰：达标率只算非问界订单，问界订单不计数）
+        # 鸿蒙组（主管熊峰：跟周志鹏一样，按全部订单算达标率，不限品牌）
         if HM_MEMBERS:
             hm = calc_group_commission(
                 month_orders, month_targets, HM_MEMBERS, "熊峰", "鸿蒙主管",
-                is_august, mgr_count_rule="非问界",
+                is_august, mgr_count_rule="问界",
             )
             result[month_str]["hm_sales"] = hm["sales"]
             result[month_str]["hm_manager"] = hm["manager"]
