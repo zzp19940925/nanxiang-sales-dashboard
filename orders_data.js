@@ -1,5 +1,5 @@
 // 自动生成 - 请勿手动修改
-// 生成时间: 2026-09-16 13:49:48
+// 生成时间: 2026-09-17 15:05:09
 
 var ordersData = [
   {
@@ -673,6 +673,118 @@ var ordersData = [
     "sale_commission": 800,
     "mgr_commission": 500,
     "status": "正常"
+  },
+  {
+    "date": "2026-09-04",
+    "month": "9月",
+    "sales": "丁露",
+    "customer": "王雪梅",
+    "car": "M9 EVR",
+    "brand": "问界",
+    "plate": "免费绿牌",
+    "order_no": "2873380486635654.0",
+    "review": "",
+    "sale_commission": 1400,
+    "mgr_commission": 700,
+    "status": "正常"
+  },
+  {
+    "date": "2026-09-04",
+    "month": "9月",
+    "sales": "丁露",
+    "customer": "刘泽洋",
+    "car": "S9T EV",
+    "brand": "享界",
+    "plate": "免费绿牌",
+    "order_no": "2873380479140097.0",
+    "review": "",
+    "sale_commission": 1600,
+    "mgr_commission": 900,
+    "status": "正常"
+  },
+  {
+    "date": "2026-09-06",
+    "month": "9月",
+    "sales": "丁露",
+    "customer": "李佳蔚",
+    "car": "M6 EV",
+    "brand": "问界",
+    "plate": "免费绿牌",
+    "order_no": "2873380478812769.0",
+    "review": "",
+    "sale_commission": 800,
+    "mgr_commission": 500,
+    "status": "正常"
+  },
+  {
+    "date": "2026-09-10",
+    "month": "9月",
+    "sales": "丁露",
+    "customer": "邓健芳",
+    "car": "M6 EV",
+    "brand": "问界",
+    "plate": "免费绿牌",
+    "order_no": "2873380478838123.0",
+    "review": "",
+    "sale_commission": 1000,
+    "mgr_commission": 600,
+    "status": "正常"
+  },
+  {
+    "date": "2026-09-12",
+    "month": "9月",
+    "sales": "乔浩",
+    "customer": "戴怡颖",
+    "car": "M6 EV",
+    "brand": "问界",
+    "plate": "免费绿牌",
+    "order_no": "2873386831077391.0",
+    "review": "",
+    "sale_commission": 1000,
+    "mgr_commission": 600,
+    "status": "正常"
+  },
+  {
+    "date": "2026-09-12",
+    "month": "9月",
+    "sales": "丁露",
+    "customer": "管昭",
+    "car": "Z7",
+    "brand": "尚界",
+    "plate": "免费绿牌",
+    "order_no": "2873386831052911.0",
+    "review": "",
+    "sale_commission": 2400,
+    "mgr_commission": 800,
+    "status": "正常"
+  },
+  {
+    "date": "2026-09-14",
+    "month": "9月",
+    "sales": "乔浩",
+    "customer": "上海如济工程建设有限公司",
+    "car": "Z7",
+    "brand": "尚界",
+    "plate": "免费公牌",
+    "order_no": "2873380479215536.0",
+    "review": "",
+    "sale_commission": 1400,
+    "mgr_commission": 800,
+    "status": "正常"
+  },
+  {
+    "date": "2026-09-17",
+    "month": "9月",
+    "sales": "丁露",
+    "customer": "许敏",
+    "car": "Z7T",
+    "brand": "尚界",
+    "plate": "外牌",
+    "order_no": "2873380479142110.0",
+    "review": "不需要",
+    "sale_commission": 2000,
+    "mgr_commission": 1000,
+    "status": "正常"
   }
 ];
 
@@ -940,22 +1052,22 @@ var commissionData = {
       {
         "name": "乔浩",
         "target": 3,
-        "order_count": 0,
-        "rate": 0.0,
-        "coeff": 0.5,
-        "sale_commission": 0,
-        "mgr_commission": 0,
-        "final_commission": 0
+        "order_count": 2,
+        "rate": 0.667,
+        "coeff": 0.7,
+        "sale_commission": 2400,
+        "mgr_commission": 1400,
+        "final_commission": 1680
       },
       {
         "name": "丁露",
         "target": 2,
-        "order_count": 0,
-        "rate": 0.0,
-        "coeff": 0.5,
-        "sale_commission": 0,
-        "mgr_commission": 0,
-        "final_commission": 0
+        "order_count": 6,
+        "rate": 3.0,
+        "coeff": 1.2,
+        "sale_commission": 9200,
+        "mgr_commission": 4500,
+        "final_commission": 11040
       },
       {
         "name": "任天翔",
@@ -981,11 +1093,11 @@ var commissionData = {
     "manager": {
       "name": "周志鹏",
       "target": 14,
-      "order_count": 0,
-      "rate": 0.0,
+      "order_count": 4,
+      "rate": 0.286,
       "coeff": 0.5,
-      "commission_base": 0,
-      "final_commission": 0
+      "commission_base": 5900,
+      "final_commission": 2950
     },
     "hm_sales": [
       {
