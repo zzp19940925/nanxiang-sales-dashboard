@@ -1,5 +1,5 @@
 // 自动生成 - 请勿手动修改
-// 生成时间: 2026-09-19 16:46:12
+// 生成时间: 2026-09-20 14:16:30
 
 var ordersData = [
   {
@@ -785,6 +785,34 @@ var ordersData = [
     "sale_commission": 2000,
     "mgr_commission": 1000,
     "status": "正常"
+  },
+  {
+    "date": "2026-09-20",
+    "month": "9月",
+    "sales": "乔浩",
+    "customer": "曹华",
+    "car": "M9 U",
+    "brand": "问界",
+    "plate": "免费公牌",
+    "order_no": "2873380478830941.0",
+    "review": "",
+    "sale_commission": 3000,
+    "mgr_commission": 1500,
+    "status": "正常"
+  },
+  {
+    "date": "2026-09-20",
+    "month": "9月",
+    "sales": "罗松",
+    "customer": "杨沄",
+    "car": "Z7",
+    "brand": "尚界",
+    "plate": "大牌",
+    "order_no": "2873380479216045.0",
+    "review": "不需要",
+    "sale_commission": 2000,
+    "mgr_commission": 1100,
+    "status": "正常"
   }
 ];
 
@@ -1042,22 +1070,22 @@ var commissionData = {
       {
         "name": "罗松",
         "target": 3,
-        "order_count": 0,
-        "rate": 0.0,
+        "order_count": 1,
+        "rate": 0.333,
         "coeff": 0.5,
-        "sale_commission": 0,
-        "mgr_commission": 0,
-        "final_commission": 0
+        "sale_commission": 2000,
+        "mgr_commission": 1100,
+        "final_commission": 1000
       },
       {
         "name": "乔浩",
         "target": 3,
-        "order_count": 2,
-        "rate": 0.667,
-        "coeff": 0.7,
-        "sale_commission": 2400,
-        "mgr_commission": 1400,
-        "final_commission": 1680
+        "order_count": 3,
+        "rate": 1.0,
+        "coeff": 1.0,
+        "sale_commission": 5400,
+        "mgr_commission": 2900,
+        "final_commission": 5400
       },
       {
         "name": "丁露",
@@ -1093,11 +1121,11 @@ var commissionData = {
     "manager": {
       "name": "周志鹏",
       "target": 14,
-      "order_count": 4,
-      "rate": 0.286,
+      "order_count": 5,
+      "rate": 0.357,
       "coeff": 0.5,
-      "commission_base": 5900,
-      "final_commission": 2950
+      "commission_base": 8500,
+      "final_commission": 4250
     },
     "hm_sales": [
       {
