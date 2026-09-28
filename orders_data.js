@@ -1,5 +1,5 @@
 // 自动生成 - 请勿手动修改
-// 生成时间: 2026-09-27 17:56:50
+// 生成时间: 2026-09-28 18:11:50
 
 var ordersData = [
   {
@@ -841,6 +841,34 @@ var ordersData = [
     "sale_commission": 1000,
     "mgr_commission": 600,
     "status": "正常"
+  },
+  {
+    "date": "2026-09-28",
+    "month": "9月",
+    "sales": "乔浩",
+    "customer": "杜鑫",
+    "car": "Z7",
+    "brand": "尚界",
+    "plate": "",
+    "order_no": "",
+    "review": "",
+    "sale_commission": 2000,
+    "mgr_commission": 1000,
+    "status": "正常"
+  },
+  {
+    "date": "2026-09-28",
+    "month": "9月",
+    "sales": "丁露",
+    "customer": "王昌",
+    "car": "RX",
+    "brand": "智界",
+    "plate": "",
+    "order_no": "",
+    "review": "",
+    "sale_commission": 3000,
+    "mgr_commission": 1500,
+    "status": "正常"
   }
 ];
 
@@ -1108,22 +1136,22 @@ var commissionData = {
       {
         "name": "乔浩",
         "target": 3,
-        "order_count": 3,
-        "rate": 1.0,
-        "coeff": 1.0,
-        "sale_commission": 5400,
-        "mgr_commission": 2900,
-        "final_commission": 5400
+        "order_count": 4,
+        "rate": 1.333,
+        "coeff": 1.2,
+        "sale_commission": 7400,
+        "mgr_commission": 3900,
+        "final_commission": 8880
       },
       {
         "name": "丁露",
         "target": 2,
-        "order_count": 6,
-        "rate": 3.0,
+        "order_count": 7,
+        "rate": 3.5,
         "coeff": 1.2,
-        "sale_commission": 9200,
-        "mgr_commission": 4500,
-        "final_commission": 11040
+        "sale_commission": 12200,
+        "mgr_commission": 6000,
+        "final_commission": 14640
       },
       {
         "name": "任天翔",
@@ -1152,8 +1180,8 @@ var commissionData = {
       "order_count": 7,
       "rate": 0.5,
       "coeff": 0.5,
-      "commission_base": 10600,
-      "final_commission": 5300
+      "commission_base": 13100,
+      "final_commission": 6550
     },
     "hm_sales": [
       {
